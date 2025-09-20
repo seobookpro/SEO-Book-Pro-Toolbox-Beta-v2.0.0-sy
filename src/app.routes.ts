@@ -26,6 +26,18 @@ export const APP_ROUTES: Routes = [
     data: { breadcrumb: 'Page Speed Analyzer' }
   },
   {
+    path: 'seo-audit-checklist',
+    loadComponent: () => import('./pages/seo-audit-checklist/seo-audit-checklist.component').then(m => m.SeoAuditChecklistComponent),
+    title: 'SEO Audit Checklist | SEO Book Pro',
+    data: { breadcrumb: 'SEO Audit Checklist' }
+  },
+  {
+    path: 'seo-glossary',
+    loadComponent: () => import('./pages/seo-glossary/seo-glossary.component').then(m => m.SeoGlossaryComponent),
+    title: 'SEO Glossary | SEO Book Pro',
+    data: { breadcrumb: 'SEO Glossary' }
+  },
+  {
     path: 'faqs',
     loadComponent: () => import('./pages/faqs/faqs.component').then(m => m.FaqsComponent),
     title: 'FAQs | SEO Book Pro',

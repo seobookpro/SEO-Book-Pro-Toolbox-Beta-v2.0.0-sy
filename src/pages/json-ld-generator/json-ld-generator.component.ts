@@ -134,6 +134,24 @@ export class JsonLdGeneratorComponent {
     });
   }
 
+  testWithGoogle() {
+    const code = this.generatedJsonLd();
+    if (code) {
+      const encodedCode = encodeURIComponent(code);
+      const url = `https://search.google.com/test/rich-results?code=${encodedCode}`;
+      window.open(url, '_blank');
+    }
+  }
+
+  validateOnSchemaOrg() {
+    const code = this.generatedJsonLd();
+    if (code) {
+      const encodedCode = encodeURIComponent(code);
+      const url = `https://validator.schema.org/#code=${encodedCode}`;
+      window.open(url, '_blank');
+    }
+  }
+
   trackByIndex(index: number): number {
     return index;
   }
