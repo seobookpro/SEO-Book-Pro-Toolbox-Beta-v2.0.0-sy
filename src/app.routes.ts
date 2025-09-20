@@ -20,6 +20,12 @@ export const APP_ROUTES: Routes = [
     data: { breadcrumb: 'SEO Generator' }
   },
   {
+    path: 'page-speed-analyzer',
+    loadComponent: () => import('./pages/page-speed-analyzer/page-speed-analyzer.component').then(m => m.PageSpeedAnalyzerComponent),
+    title: 'Page Speed Analyzer | SEO Book Pro',
+    data: { breadcrumb: 'Page Speed Analyzer' }
+  },
+  {
     path: 'faqs',
     loadComponent: () => import('./pages/faqs/faqs.component').then(m => m.FaqsComponent),
     title: 'FAQs | SEO Book Pro',
