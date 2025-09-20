@@ -1,0 +1,82 @@
+<div class="relative min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
+  
+  <!-- Left Sidebar -->
+  <app-sidebar-left 
+    [isOpen]="leftSidebarOpen()"
+    (closeSidebar)="toggleLeftSidebar()">
+  </app-sidebar-left>
+  
+  <!-- Right Sidebar -->
+  <app-sidebar-right 
+    [isOpen]="rightSidebarOpen()"
+    (closeSidebar)="toggleRightSidebar()">
+  </app-sidebar-right>
+  
+  <!-- Overlay for closing sidebars on mobile -->
+  @if (leftSidebarOpen() || rightSidebarOpen()) {
+    <div (click)="closeSidebars()" class="fixed inset-0 bg-black/50 z-30 lg:hidden"></div>
+  }
+
+  <!-- Main Content Wrapper -->
+  <div 
+    class="flex-1 flex flex-col transition-all duration-300 ease-in-out"
+    [class.lg:ml-64]="leftSidebarOpen()"
+    [class.lg:mr-64]="rightSidebarOpen()"
+  >
+    <!-- Header -->
+    @if (showHeader()) {
+      <header class="sticky top-0 z-20 bg-gradient-to-r from-yellow-400 to-orange-500 shadow-md">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex items-center justify-between h-16">
+            <!-- Left side -->
+            <div class="flex items-center">
+              <button (click)="toggleLeftSidebar()" class="p-2 rounded-md text-white hover:bg-white/20 focus:outline-none lg:hidden">
+                <div class="hamburger-button" [class.open]="leftSidebarOpen()">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </button>
+              <div class="flex items-center gap-3">
+                <img [src]="logo" alt="SEO Book Pro Logo" class="h-8 w-auto invert brightness-0">
+                <span class="text-xl font-bold text-white ml-2 lg:ml-0">SEO Book Pro Toolbox Beta v2.0.0</span>
+              </div>
+            </div>
+            
+            <!-- Right side -->
+            <div class="flex items-center">
+              <button (click)="toggleRightSidebar()" class="p-2 rounded-md text-white hover:bg-white/20 focus:outline-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+    }
+    <app-breadcrumb></app-breadcrumb>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-4 sm:p-6 lg:p-8">
+      <router-outlet></router-outlet>
+    </main>
+
+    <!-- Footer -->
+    @if (showFooter()) {
+      <footer class="bg-white dark:bg-gray-800 shadow-inner mt-auto transition-colors duration-300">
+        <div class="container mx-auto py-4 px-4 sm:px-6 lg:px-8 text-center text-gray-500 dark:text-gray-400">
+          <p>&copy; 2024 SEO Book Pro. All rights reserved.</p>
+        </div>
+      </footer>
+    }
+  </div>
+
+  <!-- AI Chat Bubble -->
+  <a routerLink="/ai-chatbot" class="chat-bubble bg-orange-600 text-white rounded-full p-4 shadow-lg flex items-center justify-center">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+    </svg>
+  </a>
+</div>

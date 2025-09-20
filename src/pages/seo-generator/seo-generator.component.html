@@ -1,0 +1,85 @@
+<div class="space-y-6">
+  <h1 class="text-3xl font-bold text-gray-900 dark:text-white">SEO Meta Tag Generator</h1>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+    <!-- Form & Preview Section -->
+    <div class="space-y-6">
+      <!-- Form -->
+      <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md space-y-4">
+        <h3 class="text-lg font-semibold border-b pb-2 dark:border-gray-600">Primary Tags</h3>
+        <div>
+          <label class="block text-sm font-medium">Title ({{ title().length }} / 60)</label>
+          <input type="text" name="title" required [(ngModel)]="title" #titleField="ngModel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="titleField.invalid && titleField.touched">
+          @if(titleField.invalid && titleField.touched) { <p class="mt-1 text-sm text-red-500">Title is required.</p> }
+        </div>
+        <div>
+          <label class="block text-sm font-medium">Description ({{ description().length }} / 160)</label>
+          <textarea [(ngModel)]="description" name="description" required #descField="ngModel" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="descField.invalid && descField.touched"></textarea>
+          @if(descField.invalid && descField.touched) { <p class="mt-1 text-sm text-red-500">Description is required.</p> }
+        </div>
+        <div>
+          <label class="block text-sm font-medium">URL</label>
+          <input type="url" name="url" required pattern="https?://.+" [(ngModel)]="url" #urlField="ngModel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="urlField.invalid && urlField.touched">
+          @if(urlField.errors?.['required'] && urlField.touched) { <p class="mt-1 text-sm text-red-500">URL is required.</p> }
+          @if(urlField.errors?.['pattern'] && urlField.touched) { <p class="mt-1 text-sm text-red-500">A valid URL is required.</p> }
+        </div>
+        
+        <h3 class="text-lg font-semibold border-b pb-2 pt-4 dark:border-gray-600">Advanced Tags</h3>
+        <div>
+          <label class="block text-sm font-medium">Canonical URL</label>
+          <input type="url" name="canonicalUrl" required pattern="https?://.+" [(ngModel)]="canonicalUrl" #canonicalField="ngModel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="canonicalField.invalid && canonicalField.touched">
+          @if(canonicalField.errors?.['required'] && canonicalField.touched) { <p class="mt-1 text-sm text-red-500">Canonical URL is required.</p> }
+          @if(canonicalField.errors?.['pattern'] && canonicalField.touched) { <p class="mt-1 text-sm text-red-500">A valid URL is required.</p> }
+        </div>
+        <div>
+          <label class="block text-sm font-medium">Robots Meta Tag</label>
+          <input type="text" name="robots" required [(ngModel)]="robotsContent" #robotsField="ngModel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="robotsField.invalid && robotsField.touched">
+           @if(robotsField.invalid && robotsField.touched) { <p class="mt-1 text-sm text-red-500">Robots content is required.</p> }
+        </div>
+
+        <h3 class="text-lg font-semibold border-b pb-2 pt-4 dark:border-gray-600">Social Tags (Open Graph & Twitter)</h3>
+        <div>
+          <label class="block text-sm font-medium">Image URL</label>
+          <input type="url" name="ogImage" required pattern="https?://.+" [(ngModel)]="ogImage" #ogImageField="ngModel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="ogImageField.invalid && ogImageField.touched">
+          @if(ogImageField.errors?.['required'] && ogImageField.touched) { <p class="mt-1 text-sm text-red-500">Image URL is required for social tags.</p> }
+          @if(ogImageField.errors?.['pattern'] && ogImageField.touched) { <p class="mt-1 text-sm text-red-500">A valid URL is required.</p> }
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium">OG Type</label>
+            <input type="text" name="ogType" required [(ngModel)]="ogType" #ogTypeField="ngModel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="ogTypeField.invalid && ogTypeField.touched">
+             @if(ogTypeField.invalid && ogTypeField.touched) { <p class="mt-1 text-sm text-red-500">OG Type is required.</p> }
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Twitter Card Type</label>
+            <input type="text" name="twitterCard" required [(ngModel)]="twitterCard" #twitterCardField="ngModel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="twitterCardField.invalid && twitterCardField.touched">
+            @if(twitterCardField.invalid && twitterCardField.touched) { <p class="mt-1 text-sm text-red-500">Twitter Card type is required.</p> }
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium">Twitter Handle (e.g. @yourhandle)</label>
+          <input type="text" name="twitterSite" [(ngModel)]="twitterSite" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500">
+        </div>
+      </div>
+      <!-- Preview -->
+      <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+        <h3 class="text-lg font-semibold border-b pb-2 mb-4 dark:border-gray-600">Google Search Preview</h3>
+        <div class="font-sans p-2 rounded-md border dark:border-gray-700">
+          <p class="text-sm text-gray-700 dark:text-gray-300 truncate">{{ url() }}</p>
+          <h4 class="text-xl text-blue-800 dark:text-blue-500 hover:underline cursor-pointer truncate">{{ title() }}</h4>
+          <p class="text-gray-600 dark:text-gray-400">{{ description() }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Code Output Section -->
+    <div class="p-6 bg-gray-900 text-white rounded-lg shadow-md flex flex-col">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="text-lg font-semibold">Generated HTML</h3>
+        <button (click)="copyToClipboard()" class="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">{{ copyButtonText() }}</button>
+      </div>
+      <pre class="flex-grow bg-gray-800 p-4 rounded-md overflow-auto text-sm"><code>{{ generatedHtml() }}</code></pre>
+    </div>
+
+  </div>
+</div>

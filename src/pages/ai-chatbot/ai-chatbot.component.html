@@ -1,0 +1,55 @@
+<div class="h-full flex flex-col max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md">
+  <h1 class="text-2xl font-bold text-gray-900 dark:text-white p-4 border-b dark:border-gray-700">
+    AI SEO Assistant
+  </h1>
+  
+  <div #chatContainer class="flex-1 p-4 space-y-4 overflow-y-auto">
+    @for (message of messages(); track message) {
+      <div class="flex" [class.justify-end]="message.role === 'user'" [class.justify-start]="message.role === 'model'">
+        <div 
+          class="max-w-lg lg:max-w-xl p-3 rounded-lg"
+          [class.bg-orange-500]="message.role === 'user'"
+          [class.text-white]="message.role === 'user'"
+          [class.bg-gray-200]="message.role === 'model'"
+          [class.dark:bg-gray-700]="message.role === 'model'"
+          [class.dark:text-gray-200]="message.role === 'model'"
+        >
+          <p class="text-sm whitespace-pre-wrap">{{ message.text }}</p>
+        </div>
+      </div>
+    }
+    @if (isLoading()) {
+      <div class="flex justify-start">
+        <div class="max-w-lg lg:max-w-xl p-3 rounded-lg bg-gray-200 dark:bg-gray-700 dark:text-gray-200">
+          <div class="flex items-center space-x-2">
+            <div class="w-2 h-2 rounded-full bg-gray-500 animate-pulse"></div>
+            <div class="w-2 h-2 rounded-full bg-gray-500 animate-pulse [animation-delay:0.2s]"></div>
+            <div class="w-2 h-2 rounded-full bg-gray-500 animate-pulse [animation-delay:0.4s]"></div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="p-4 border-t dark:border-gray-700">
+    <div class="flex items-center space-x-2">
+      <input 
+        type="text" 
+        placeholder="Ask an SEO question..."
+        [(ngModel)]="userInput"
+        (keydown.enter)="sendMessage()"
+        [disabled]="isLoading()"
+        class="flex-1 px-4 py-2 rounded-full border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+      />
+      <button 
+        (click)="sendMessage()" 
+        [disabled]="isLoading() || userInput().trim() === ''"
+        class="bg-orange-600 text-white rounded-full p-3 hover:bg-orange-700 disabled:bg-orange-400 disabled:cursor-not-allowed transition-colors"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>

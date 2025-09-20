@@ -1,0 +1,39 @@
+<div class="max-w-4xl mx-auto">
+  <h1 class="text-3xl font-bold text-center text-gray-900 dark:text-white mb-4">Frequently Asked Questions</h1>
+  <p class="text-center text-lg text-gray-600 dark:text-gray-300 mb-8">
+    Find answers to common technical SEO questions.
+  </p>
+
+  <div class="mb-8">
+    <input 
+      type="text" 
+      placeholder="Search FAQs..."
+      [ngModel]="searchTerm()"
+      (ngModelChange)="searchTerm.set($event)"
+      class="w-full px-4 py-3 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+    >
+  </div>
+
+  <div class="space-y-4">
+    @for (faq of filteredFaqs(); track faq.question; let i = $index) {
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+        <button (click)="toggleFaq(i)" class="w-full flex justify-between items-center text-left p-6 focus:outline-none">
+          <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">{{ faq.question }}</h2>
+          <svg class="w-6 h-6 text-gray-500 dark:text-gray-400 transform transition-transform duration-300" 
+               [class.rotate-180]="faq.open"
+               fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        @if (faq.open) {
+          <div class="px-6 pb-6 text-gray-600 dark:text-gray-300">
+            <p>{{ faq.answer }}</p>
+          </div>
+        }
+      </div>
+    }
+    @if(filteredFaqs().length === 0) {
+        <p class="text-center text-gray-500 dark:text-gray-400 py-8">No questions found matching your search.</p>
+    }
+  </div>
+</div>

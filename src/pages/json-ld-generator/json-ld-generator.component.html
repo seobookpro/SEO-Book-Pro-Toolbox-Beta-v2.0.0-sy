@@ -1,0 +1,116 @@
+<div class="space-y-6">
+  <h1 class="text-3xl font-bold text-gray-900 dark:text-white">JSON-LD Schema Generator</h1>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Form Section -->
+    <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md space-y-4">
+      <div>
+        <label for="schemaType" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Select Schema Type</label>
+        <select id="schemaType" name="schemaType" [(ngModel)]="selectedSchema" (ngModelChange)="selectedSchema.set($event)" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm rounded-md">
+          @for(schema of schemaTypes; track schema) {
+            <option [value]="schema">{{ schema }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Dynamic Form -->
+      @switch (selectedSchema()) {
+        @case ('Article') {
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold border-b pb-2 dark:border-gray-600">Article Details</h3>
+            <div>
+              <label class="block text-sm font-medium">Headline</label>
+              <input type="text" name="headline" required [(ngModel)]="article().headline" (ngModelChange)="updateArticle('headline', $event)" #headline="ngModel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="headline.invalid && headline.touched">
+              @if(headline.invalid && headline.touched) { <p class="mt-1 text-sm text-red-500">Headline is required.</p> }
+            </div>
+            <div>
+              <label class="block text-sm font-medium">Image URL</label>
+              <input type="url" name="articleImage" required pattern="https?://.+" [(ngModel)]="article().image" (ngModelChange)="updateArticle('image', $event)" #articleImage="ngModel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="articleImage.invalid && articleImage.touched">
+              @if(articleImage.errors?.['required'] && articleImage.touched) { <p class="mt-1 text-sm text-red-500">Image URL is required.</p> }
+              @if(articleImage.errors?.['pattern'] && articleImage.touched) { <p class="mt-1 text-sm text-red-500">A valid URL is required (e.g., https://example.com/image.jpg).</p> }
+            </div>
+            <div>
+              <label class="block text-sm font-medium">Date Published</label>
+              <input type="date" name="datePublished" required [(ngModel)]="article().datePublished" (ngModelChange)="updateArticle('datePublished', $event)" #datePublished="ngModel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="datePublished.invalid && datePublished.touched">
+               @if(datePublished.invalid && datePublished.touched) { <p class="mt-1 text-sm text-red-500">Date is required.</p> }
+            </div>
+            <div>
+              <label class="block text-sm font-medium">Author Name</label>
+              <input type="text" name="authorName" required [(ngModel)]="article().authorName" (ngModelChange)="updateArticle('authorName', $event)" #authorName="ngModel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="authorName.invalid && authorName.touched">
+               @if(authorName.invalid && authorName.touched) { <p class="mt-1 text-sm text-red-500">Author name is required.</p> }
+            </div>
+          </div>
+        }
+        @case ('Product') {
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold border-b pb-2 dark:border-gray-600">Product Details</h3>
+            <input type="text" name="productName" required placeholder="Product Name" [(ngModel)]="product().name" (ngModelChange)="updateProduct('name', $event)" #productName="ngModel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="productName.invalid && productName.touched">
+            @if(productName.invalid && productName.touched) { <p class="mt-1 text-sm text-red-500">Product name is required.</p> }
+
+            <input type="url" name="productImage" required pattern="https?://.+" placeholder="Image URL" [(ngModel)]="product().image" (ngModelChange)="updateProduct('image', $event)" #productImage="ngModel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="productImage.invalid && productImage.touched">
+             @if(productImage.errors?.['required'] && productImage.touched) { <p class="mt-1 text-sm text-red-500">Image URL is required.</p> }
+             @if(productImage.errors?.['pattern'] && productImage.touched) { <p class="mt-1 text-sm text-red-500">A valid URL is required.</p> }
+
+            <textarea placeholder="Description" name="productDescription" required [(ngModel)]="product().description" (ngModelChange)="updateProduct('description', $event)" #productDescription="ngModel" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="productDescription.invalid && productDescription.touched"></textarea>
+            @if(productDescription.invalid && productDescription.touched) { <p class="mt-1 text-sm text-red-500">Description is required.</p> }
+            
+            <input type="text" placeholder="SKU" name="productSku" required [(ngModel)]="product().sku" (ngModelChange)="updateProduct('sku', $event)" #productSku="ngModel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="productSku.invalid && productSku.touched">
+             @if(productSku.invalid && productSku.touched) { <p class="mt-1 text-sm text-red-500">SKU is required.</p> }
+
+            <input type="text" placeholder="Brand Name" name="brandName" required [(ngModel)]="product().brandName" (ngModelChange)="updateProduct('brandName', $event)" #brandName="ngModel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="brandName.invalid && brandName.touched">
+            @if(brandName.invalid && brandName.touched) { <p class="mt-1 text-sm text-red-500">Brand name is required.</p> }
+            
+            <div class="flex gap-2">
+              <input type="text" placeholder="Currency (e.g., USD)" name="currency" required [(ngModel)]="product().currency" (ngModelChange)="updateProduct('currency', $event)" #currency="ngModel" class="mt-1 block w-1/2 rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="currency.invalid && currency.touched">
+              <input type="number" placeholder="Price" name="price" required [(ngModel)]="product().price" (ngModelChange)="updateProduct('price', $event)" #price="ngModel" class="mt-1 block w-1/2 rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="price.invalid && price.touched">
+            </div>
+             @if(currency.invalid && currency.touched) { <p class="mt-1 text-sm text-red-500">Currency is required.</p> }
+             @if(price.invalid && price.touched) { <p class="mt-1 text-sm text-red-500">Price is required.</p> }
+          </div>
+        }
+        @case ('FAQPage') {
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold border-b pb-2 dark:border-gray-600">FAQ Details</h3>
+            @for(faq of faqPage(); track trackByIndex($index); let i = $index) {
+              <div class="p-4 border rounded-md dark:border-gray-600 space-y-2 relative">
+                @if (i > 0) {
+                  <button (click)="removeFaq(i)" class="absolute top-2 right-2 text-red-500 hover:text-red-700 font-bold text-xl">&times;</button>
+                }
+                <input type="text" placeholder="Question {{ i + 1 }}" [ngModel]="faq.question" (ngModelChange)="updateFaq(i, 'question', $event)" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500">
+                <textarea placeholder="Answer {{ i + 1 }}" [ngModel]="faq.answer" (ngModelChange)="updateFaq(i, 'answer', $event)" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500"></textarea>
+              </div>
+            }
+            <button (click)="addFaq()" class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">Add Question</button>
+          </div>
+        }
+         @case ('LocalBusiness') {
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold border-b pb-2 dark:border-gray-600">Local Business Details</h3>
+            <input type="text" placeholder="Business Name" required name="lbName" [(ngModel)]="localBusiness().name" (ngModelChange)="updateLocalBusiness('name', $event)" #lbName="ngModel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="lbName.invalid && lbName.touched">
+            @if(lbName.invalid && lbName.touched) { <p class="mt-1 text-sm text-red-500">Business name is required.</p> }
+            
+            <input type="text" placeholder="Address" required name="lbAddress" [(ngModel)]="localBusiness().address" (ngModelChange)="updateLocalBusiness('address', $event)" #lbAddress="ngModel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="lbAddress.invalid && lbAddress.touched">
+            @if(lbAddress.invalid && lbAddress.touched) { <p class="mt-1 text-sm text-red-500">Address is required.</p> }
+            
+            <input type="tel" placeholder="Telephone" required name="lbTel" [(ngModel)]="localBusiness().telephone" (ngModelChange)="updateLocalBusiness('telephone', $event)" #lbTel="ngModel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="lbTel.invalid && lbTel.touched">
+            @if(lbTel.invalid && lbTel.touched) { <p class="mt-1 text-sm text-red-500">Telephone is required.</p> }
+
+            <input type="text" placeholder="Price Range (e.g., $$)" name="lbPriceRange" [(ngModel)]="localBusiness().priceRange" (ngModelChange)="updateLocalBusiness('priceRange', $event)" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500">
+          </div>
+        }
+      }
+    </div>
+
+    <!-- Preview Section -->
+    <div class="p-6 bg-gray-900 text-white rounded-lg shadow-md flex flex-col">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="text-lg font-semibold">Live JSON-LD Preview</h3>
+        <button (click)="copyToClipboard()" class="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">{{ copyButtonText() }}</button>
+      </div>
+      <pre class="flex-grow bg-gray-800 p-4 rounded-md overflow-auto text-sm whitespace-pre-wrap break-all"><code>{{ generatedJsonLd() }}</code></pre>
+      <div class="mt-4 flex gap-4">
+          <a href="https://search.google.com/test/rich-results" target="_blank" class="text-orange-400 hover:text-orange-300">Test with Google</a>
+          <a href="https://validator.schema.org/" target="_blank" class="text-orange-400 hover:text-orange-300">Validate on Schema.org</a>
+      </div>
+    </div>
+  </div>
+</div>

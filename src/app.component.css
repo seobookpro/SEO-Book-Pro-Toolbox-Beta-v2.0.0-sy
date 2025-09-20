@@ -1,0 +1,53 @@
+/* Animated Hamburger/Close Icon */
+.hamburger-button {
+  width: 24px;
+  height: 24px;
+  position: relative;
+  transition: .5s ease-in-out;
+  cursor: pointer;
+}
+
+.hamburger-button span {
+  display: block;
+  position: absolute;
+  height: 3px;
+  width: 100%;
+  background: currentColor;
+  border-radius: 9px;
+  opacity: 1;
+  left: 0;
+  transform: rotate(0deg);
+  transition: .25s ease-in-out;
+}
+
+.hamburger-button span:nth-child(1) { top: 3px; }
+.hamburger-button span:nth-child(2) { top: 10px; }
+.hamburger-button span:nth-child(3) { top: 17px; }
+
+.hamburger-button.open span:nth-child(1) {
+  top: 10px;
+  transform: rotate(135deg);
+}
+
+.hamburger-button.open span:nth-child(2) {
+  opacity: 0;
+  left: -24px;
+}
+
+.hamburger-button.open span:nth-child(3) {
+  top: 10px;
+  transform: rotate(-135deg);
+}
+
+/* AI Chat Bubble */
+.chat-bubble {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 25;
+  transition: transform 0.3s ease-in-out;
+}
+
+.chat-bubble:hover {
+  transform: scale(1.1);
+}
