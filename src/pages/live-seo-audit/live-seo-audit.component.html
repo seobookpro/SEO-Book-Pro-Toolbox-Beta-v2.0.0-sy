@@ -1,0 +1,158 @@
+<div class="space-y-6">
+  <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md text-center">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Live SEO Audit</h1>
+    <p class="mt-2 text-lg text-gray-600 dark:text-gray-300">Enter a URL to perform a real-time technical SEO analysis.</p>
+  </div>
+
+  @if (status() === 'idle') {
+    <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md space-y-6">
+      
+      <!-- Audit Checks Section -->
+      <div>
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2">
+          <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200">Audit Options</h2>
+          <label class="flex items-center space-x-2 cursor-pointer text-sm font-medium text-gray-700 dark:text-gray-300">
+            <input 
+              type="checkbox"
+              [checked]="allChecksSelected()"
+              (change)="toggleAllChecks()"
+              class="h-5 w-5 rounded border-gray-300 dark:border-gray-600 text-orange-600 focus:ring-orange-500"
+            />
+            <span>Toggle All Audit Checks</span>
+          </label>
+        </div>
+
+        <div class="space-y-2">
+            @for (category of checkCategories; track category) {
+            <div class="border dark:border-gray-700 rounded-lg overflow-hidden">
+                <button (click)="toggleAccordion(category)" class="w-full flex justify-between items-center text-left p-4 focus:outline-none bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                    <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300">{{ category }}</h3>
+                    <span class="material-icons-outlined transition-transform" [class.rotate-180]="openAccordion() === category">expand_more</span>
+                </button>
+                @if (openAccordion() === category) {
+                <div class="p-4 border-t dark:border-gray-700">
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-2">
+                        @for(check of groupedChecks[category]; track check.id) {
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input 
+                              type="checkbox"
+                              [checked]="selectedChecks().has(check.id)"
+                              (change)="toggleCheck(check.id, $event)"
+                              class="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-orange-600 focus:ring-orange-500"
+                            />
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{ check.label }}</span>
+                        </label>
+                        }
+                    </div>
+                </div>
+                }
+            </div>
+            }
+        </div>
+      </div>
+      
+      <!-- URL Input Form -->
+      <div class="border-t pt-6 dark:border-gray-700">
+        <div class="max-w-xl mx-auto">
+          <div class="flex items-center space-x-2">
+            <input 
+              type="url" 
+              placeholder="https://example.com"
+              [(ngModel)]="url"
+              (keydown.enter)="analyzeUrl()"
+              class="flex-1 px-4 py-3 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+            />
+            <button 
+              (click)="analyzeUrl()" 
+              [disabled]="url().trim() === ''"
+              class="bg-orange-600 text-white rounded-lg px-6 py-3 font-semibold hover:bg-orange-700 disabled:bg-orange-400 disabled:cursor-not-allowed transition-colors"
+            >
+              Analyze
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (status() === 'loading') {
+    <div class="p-8 bg-white dark:bg-gray-800 rounded-lg shadow-md text-center">
+        <div class="flex justify-center items-center mb-4">
+             <svg class="animate-spin -ml-1 mr-3 h-10 w-10 text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+        </div>
+        <p class="text-lg text-gray-600 dark:text-gray-300 animate-pulse">Performing audit on {{ url() }}...</p>
+    </div>
+  }
+
+  @if (status() === 'success' && auditResult()) {
+    @let result = auditResult()!;
+    <div class="space-y-6">
+        <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">Audit Results for:</h2>
+                    <p class="text-lg text-orange-600 dark:text-orange-400 break-all">{{ url() }}</p>
+                </div>
+                 <button (click)="reset()" class="bg-orange-600 text-white rounded-lg px-6 py-2 font-semibold hover:bg-orange-700 transition-colors">
+                    Audit Another Page
+                </button>
+            </div>
+        </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Title Tag -->
+          <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+            <div class="flex items-center">
+              @let titleStatus = getStatusClass(result.title.status);
+              <span class="material-icons-outlined text-3xl" [class]="titleStatus.color">{{ titleStatus.icon }}</span>
+              <h3 class="ml-3 text-xl font-semibold">Title Tag</h3>
+            </div>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">"{{ result.title.text }}"</p>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-500">Length: {{ result.title.length }} characters.</p>
+            <p class="mt-2 text-sm text-gray-700 dark:text-gray-300">{{ result.title.recommendation }}</p>
+          </div>
+
+          <!-- Meta Description -->
+          <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+            <div class="flex items-center">
+               @let descStatus = getStatusClass(result.description.status);
+               <span class="material-icons-outlined text-3xl" [class]="descStatus.color">{{ descStatus.icon }}</span>
+              <h3 class="ml-3 text-xl font-semibold">Meta Description</h3>
+            </div>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">"{{ result.description.text }}"</p>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-500">Length: {{ result.description.length }} characters.</p>
+            <p class="mt-2 text-sm text-gray-700 dark:text-gray-300">{{ result.description.recommendation }}</p>
+          </div>
+          
+          <!-- H1 Tag -->
+          <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+            <div class="flex items-center">
+              @let h1Status = getStatusClass(result.h1.status);
+               <span class="material-icons-outlined text-3xl" [class]="h1Status.color">{{ h1Status.icon }}</span>
+              <h3 class="ml-3 text-xl font-semibold">H1 Tag</h3>
+            </div>
+             @if (result.h1.count > 0) {
+              <p class="mt-2 text-gray-600 dark:text-gray-400">"{{ result.h1.text }}"</p>
+             }
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-500">Found {{ result.h1.count }} H1 tag(s).</p>
+            <p class="mt-2 text-sm text-gray-700 dark:text-gray-300">{{ result.h1.recommendation }}</p>
+          </div>
+
+          <!-- Image Alt Text -->
+          <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+            <div class="flex items-center">
+               @let imgStatus = getStatusClass(result.images.status);
+               <span class="material-icons-outlined text-3xl" [class]="imgStatus.color">{{ imgStatus.icon }}</span>
+              <h3 class="ml-3 text-xl font-semibold">Image Alt Text</h3>
+            </div>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">Found {{ result.images.count }} images.</p>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-500">{{ result.images.missingAlt }} image(s) missing alt text.</p>
+            <p class="mt-2 text-sm text-gray-700 dark:text-gray-300">{{ result.images.recommendation }}</p>
+          </div>
+      </div>
+    </div>
+  }
+</div>

@@ -13,7 +13,7 @@ export const SEO_CHECKLIST_DATA: ChecklistItem[] = [
   { id: 'define-http-https', category: 'Basics & Setup', task: 'Ensure only one version of your site is browseable', details: 'Check that http, https, www, and non-www versions all redirect to a single canonical version.' },
 
   // Crawling & Indexing
-  { id: 'review-robots-txt', category: 'Crawling & Indexing', task: 'Review robots.txt file', details: 'Ensure you are not blocking important content from being crawled by search engines.' },
+  { id: 'review-robots-txt', category: 'Crawling & Indexing', task: 'Review robots.txt file', details: 'Ensure you aren\'t blocking important content. Check for common pitfalls like blocking CSS/JS files. Verify your sitemap is correctly referenced (e.g., Sitemap: https://www.yourdomain.com/sitemap.xml). Example syntax for disallowing: User-agent: * Disallow: /private/' },
   { id: 'find-crawl-errors', category: 'Crawling & Indexing', task: 'Find and fix crawl errors', details: 'Use GSC’s Coverage report to identify and resolve crawling issues.' },
   { id: 'check-index-status', category: 'Crawling & Indexing', task: 'Check Google index status', details: 'Use the "site:" search operator (e.g., site:yourdomain.com) to see how many pages are indexed.' },
   { id: 'use-sitemap', category: 'Crawling & Indexing', task: 'Create and submit an XML sitemap', details: 'Help search engines discover all important pages on your site.' },

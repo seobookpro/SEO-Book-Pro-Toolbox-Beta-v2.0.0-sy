@@ -5,7 +5,7 @@
     <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md space-y-4">
       <div>
         <label for="schemaType" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Select Schema Type</label>
-        <select id="schemaType" name="schemaType" [(ngModel)]="selectedSchema" (ngModelChange)="selectedSchema.set($event)" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm rounded-md">
+        <select id="schemaType" name="schemaType" [ngModel]="selectedSchema()" (ngModelChange)="selectedSchema.set($event)" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm rounded-md">
           @for(schema of schemaTypes; track schema) {
             <option [value]="schema">{{ schema }}</option>
           }
@@ -17,54 +17,30 @@
         @case ('Article') {
           <div class="space-y-4">
             <h3 class="text-lg font-semibold border-b pb-2 dark:border-gray-600">Article Details</h3>
-            <div>
-              <label class="block text-sm font-medium">Headline</label>
-              <input type="text" name="headline" required [(ngModel)]="article().headline" (ngModelChange)="updateArticle('headline', $event)" #headline="ngModel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="headline.invalid && headline.touched">
-              @if(headline.invalid && headline.touched) { <p class="mt-1 text-sm text-red-500">Headline is required.</p> }
+            <input type="text" placeholder="Headline" [(ngModel)]="article().headline" (ngModelChange)="updateField(article, 'headline', $event)" class="mt-1 block w-full input-style">
+            <input type="url" placeholder="Image URL" [(ngModel)]="article().image" (ngModelChange)="updateField(article, 'image', $event)" class="mt-1 block w-full input-style">
+            <input type="date" placeholder="Date Published" [(ngModel)]="article().datePublished" (ngModelChange)="updateField(article, 'datePublished', $event)" class="mt-1 block w-full input-style">
+            <input type="text" placeholder="Author Name" [(ngModel)]="article().authorName" (ngModelChange)="updateField(article, 'authorName', $event)" class="mt-1 block w-full input-style">
+            <h4 class="text-md font-semibold pt-2">Advanced</h4>
+            <div class="flex items-center">
+              <input type="checkbox" id="isPaywalled" [ngModel]="article().isPaywalled" (ngModelChange)="updateField(article, 'isPaywalled', $event)" class="h-4 w-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500">
+              <label for="isPaywalled" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">Content is behind a paywall</label>
             </div>
-            <div>
-              <label class="block text-sm font-medium">Image URL</label>
-              <input type="url" name="articleImage" required pattern="https?://.+" [(ngModel)]="article().image" (ngModelChange)="updateArticle('image', $event)" #articleImage="ngModel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="articleImage.invalid && articleImage.touched">
-              @if(articleImage.errors?.['required'] && articleImage.touched) { <p class="mt-1 text-sm text-red-500">Image URL is required.</p> }
-              @if(articleImage.errors?.['pattern'] && articleImage.touched) { <p class="mt-1 text-sm text-red-500">A valid URL is required (e.g., https://example.com/image.jpg).</p> }
-            </div>
-            <div>
-              <label class="block text-sm font-medium">Date Published</label>
-              <input type="date" name="datePublished" required [(ngModel)]="article().datePublished" (ngModelChange)="updateArticle('datePublished', $event)" #datePublished="ngModel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="datePublished.invalid && datePublished.touched">
-               @if(datePublished.invalid && datePublished.touched) { <p class="mt-1 text-sm text-red-500">Date is required.</p> }
-            </div>
-            <div>
-              <label class="block text-sm font-medium">Author Name</label>
-              <input type="text" name="authorName" required [(ngModel)]="article().authorName" (ngModelChange)="updateArticle('authorName', $event)" #authorName="ngModel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="authorName.invalid && authorName.touched">
-               @if(authorName.invalid && authorName.touched) { <p class="mt-1 text-sm text-red-500">Author name is required.</p> }
-            </div>
+             <input type="text" placeholder="Speakable CSS Selector (e.g. .article-body)" [(ngModel)]="article().speakableCssSelector" (ngModelChange)="updateField(article, 'speakableCssSelector', $event)" class="mt-1 block w-full input-style">
           </div>
         }
         @case ('Product') {
           <div class="space-y-4">
             <h3 class="text-lg font-semibold border-b pb-2 dark:border-gray-600">Product Details</h3>
-            <input type="text" name="productName" required placeholder="Product Name" [(ngModel)]="product().name" (ngModelChange)="updateProduct('name', $event)" #productName="ngModel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="productName.invalid && productName.touched">
-            @if(productName.invalid && productName.touched) { <p class="mt-1 text-sm text-red-500">Product name is required.</p> }
-
-            <input type="url" name="productImage" required pattern="https?://.+" placeholder="Image URL" [(ngModel)]="product().image" (ngModelChange)="updateProduct('image', $event)" #productImage="ngModel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="productImage.invalid && productImage.touched">
-             @if(productImage.errors?.['required'] && productImage.touched) { <p class="mt-1 text-sm text-red-500">Image URL is required.</p> }
-             @if(productImage.errors?.['pattern'] && productImage.touched) { <p class="mt-1 text-sm text-red-500">A valid URL is required.</p> }
-
-            <textarea placeholder="Description" name="productDescription" required [(ngModel)]="product().description" (ngModelChange)="updateProduct('description', $event)" #productDescription="ngModel" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="productDescription.invalid && productDescription.touched"></textarea>
-            @if(productDescription.invalid && productDescription.touched) { <p class="mt-1 text-sm text-red-500">Description is required.</p> }
-            
-            <input type="text" placeholder="SKU" name="productSku" required [(ngModel)]="product().sku" (ngModelChange)="updateProduct('sku', $event)" #productSku="ngModel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="productSku.invalid && productSku.touched">
-             @if(productSku.invalid && productSku.touched) { <p class="mt-1 text-sm text-red-500">SKU is required.</p> }
-
-            <input type="text" placeholder="Brand Name" name="brandName" required [(ngModel)]="product().brandName" (ngModelChange)="updateProduct('brandName', $event)" #brandName="ngModel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="brandName.invalid && brandName.touched">
-            @if(brandName.invalid && brandName.touched) { <p class="mt-1 text-sm text-red-500">Brand name is required.</p> }
-            
+            <input type="text" placeholder="Product Name" [(ngModel)]="product().name" (ngModelChange)="updateField(product, 'name', $event)" class="mt-1 block w-full input-style">
+            <input type="url" placeholder="Image URL" [(ngModel)]="product().image" (ngModelChange)="updateField(product, 'image', $event)" class="mt-1 block w-full input-style">
+            <textarea placeholder="Description" [(ngModel)]="product().description" (ngModelChange)="updateField(product, 'description', $event)" rows="3" class="mt-1 block w-full input-style"></textarea>
+            <input type="text" placeholder="SKU" [(ngModel)]="product().sku" (ngModelChange)="updateField(product, 'sku', $event)" class="mt-1 block w-full input-style">
+            <input type="text" placeholder="Brand Name" [(ngModel)]="product().brandName" (ngModelChange)="updateField(product, 'brandName', $event)" class="mt-1 block w-full input-style">
             <div class="flex gap-2">
-              <input type="text" placeholder="Currency (e.g., USD)" name="currency" required [(ngModel)]="product().currency" (ngModelChange)="updateProduct('currency', $event)" #currency="ngModel" class="mt-1 block w-1/2 rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="currency.invalid && currency.touched">
-              <input type="number" placeholder="Price" name="price" required [(ngModel)]="product().price" (ngModelChange)="updateProduct('price', $event)" #price="ngModel" class="mt-1 block w-1/2 rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="price.invalid && price.touched">
+              <input type="text" placeholder="Currency (e.g., USD)" [(ngModel)]="product().currency" (ngModelChange)="updateField(product, 'currency', $event)" class="mt-1 block w-1/2 input-style">
+              <input type="number" placeholder="Price" [(ngModel)]="product().price" (ngModelChange)="updateField(product, 'price', $event)" class="mt-1 block w-1/2 input-style">
             </div>
-             @if(currency.invalid && currency.touched) { <p class="mt-1 text-sm text-red-500">Currency is required.</p> }
-             @if(price.invalid && price.touched) { <p class="mt-1 text-sm text-red-500">Price is required.</p> }
           </div>
         }
         @case ('FAQPage') {
@@ -75,33 +51,191 @@
                 @if (i > 0) {
                   <button (click)="removeFaq(i)" class="absolute top-2 right-2 text-red-500 hover:text-red-700 font-bold text-xl">&times;</button>
                 }
-                <input type="text" placeholder="Question {{ i + 1 }}" [ngModel]="faq.question" (ngModelChange)="updateFaq(i, 'question', $event)" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500">
-                <textarea placeholder="Answer {{ i + 1 }}" [ngModel]="faq.answer" (ngModelChange)="updateFaq(i, 'answer', $event)" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500"></textarea>
+                <input type="text" placeholder="Question {{ i + 1 }}" [ngModel]="faq.question" (ngModelChange)="updateFaq(i, 'question', $event)" class="mt-1 block w-full input-style">
+                <textarea placeholder="Answer {{ i + 1 }}" [ngModel]="faq.answer" (ngModelChange)="updateFaq(i, 'answer', $event)" rows="3" class="mt-1 block w-full input-style"></textarea>
               </div>
             }
-            <button (click)="addFaq()" class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">Add Question</button>
+            <button (click)="addFaq()" class="w-full py-2 px-4 btn-primary">Add Question</button>
           </div>
         }
          @case ('LocalBusiness') {
           <div class="space-y-4">
             <h3 class="text-lg font-semibold border-b pb-2 dark:border-gray-600">Local Business Details</h3>
-            <input type="text" placeholder="Business Name" required name="lbName" [(ngModel)]="localBusiness().name" (ngModelChange)="updateLocalBusiness('name', $event)" #lbName="ngModel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="lbName.invalid && lbName.touched">
-            @if(lbName.invalid && lbName.touched) { <p class="mt-1 text-sm text-red-500">Business name is required.</p> }
-            
-            <input type="text" placeholder="Address" required name="lbAddress" [(ngModel)]="localBusiness().address" (ngModelChange)="updateLocalBusiness('address', $event)" #lbAddress="ngModel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="lbAddress.invalid && lbAddress.touched">
-            @if(lbAddress.invalid && lbAddress.touched) { <p class="mt-1 text-sm text-red-500">Address is required.</p> }
-            
-            <input type="tel" placeholder="Telephone" required name="lbTel" [(ngModel)]="localBusiness().telephone" (ngModelChange)="updateLocalBusiness('telephone', $event)" #lbTel="ngModel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500" [class.border-red-500]="lbTel.invalid && lbTel.touched">
-            @if(lbTel.invalid && lbTel.touched) { <p class="mt-1 text-sm text-red-500">Telephone is required.</p> }
-
-            <input type="text" placeholder="Price Range (e.g., $$)" name="lbPriceRange" [(ngModel)]="localBusiness().priceRange" (ngModelChange)="updateLocalBusiness('priceRange', $event)" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500">
+            <input type="text" placeholder="Business Name" [(ngModel)]="localBusiness().name" (ngModelChange)="updateField(localBusiness, 'name', $event)" class="mt-1 block w-full input-style">
+            <input type="text" placeholder="Address" [(ngModel)]="localBusiness().address" (ngModelChange)="updateField(localBusiness, 'address', $event)" class="mt-1 block w-full input-style">
+            <input type="tel" placeholder="Telephone" [(ngModel)]="localBusiness().telephone" (ngModelChange)="updateField(localBusiness, 'telephone', $event)" class="mt-1 block w-full input-style">
+            <input type="text" placeholder="Price Range (e.g., $$)" [(ngModel)]="localBusiness().priceRange" (ngModelChange)="updateField(localBusiness, 'priceRange', $event)" class="mt-1 block w-full input-style">
           </div>
+        }
+        @case('BreadcrumbList') {
+          <div class="space-y-4">
+              <h3 class="text-lg font-semibold border-b pb-2 dark:border-gray-600">Breadcrumb Items</h3>
+              @for(item of breadcrumbList(); track trackByIndex($index); let i = $index) {
+                  <div class="p-4 border rounded-md dark:border-gray-600 space-y-2 relative">
+                       @if (i > 0) {
+                          <button (click)="removeBreadcrumb(i)" class="absolute top-2 right-2 text-red-500 hover:text-red-700 font-bold text-xl">&times;</button>
+                       }
+                      <input type="text" placeholder="Name (e.g., Home)" [ngModel]="item.name" (ngModelChange)="updateBreadcrumb(i, 'name', $event)" class="mt-1 block w-full input-style">
+                      <input type="url" placeholder="URL (e.g., https://example.com)" [ngModel]="item.item" (ngModelChange)="updateBreadcrumb(i, 'item', $event)" class="mt-1 block w-full input-style">
+                  </div>
+              }
+              <button (click)="addBreadcrumb()" class="w-full py-2 px-4 btn-primary">Add Breadcrumb</button>
+          </div>
+        }
+        @case('Course') {
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold border-b pb-2 dark:border-gray-600">Course Details</h3>
+                <input type="text" placeholder="Course Name" [(ngModel)]="course().name" (ngModelChange)="updateField(course, 'name', $event)" class="mt-1 block w-full input-style">
+                <textarea placeholder="Description" [(ngModel)]="course().description" (ngModelChange)="updateField(course, 'description', $event)" rows="3" class="mt-1 block w-full input-style"></textarea>
+                <input type="text" placeholder="Provider Name (e.g., University Name)" [(ngModel)]="course().providerName" (ngModelChange)="updateField(course, 'providerName', $event)" class="mt-1 block w-full input-style">
+            </div>
+        }
+        @case('Dataset') {
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold border-b pb-2 dark:border-gray-600">Dataset Details</h3>
+                <input type="text" placeholder="Dataset Name" [(ngModel)]="dataset().name" (ngModelChange)="updateField(dataset, 'name', $event)" class="mt-1 block w-full input-style">
+                <textarea placeholder="Description" [(ngModel)]="dataset().description" (ngModelChange)="updateField(dataset, 'description', $event)" rows="3" class="mt-1 block w-full input-style"></textarea>
+                <input type="url" placeholder="URL to Dataset" [(ngModel)]="dataset().url" (ngModelChange)="updateField(dataset, 'url', $event)" class="mt-1 block w-full input-style">
+            </div>
+        }
+        @case('DiscussionForumPosting') {
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold border-b pb-2 dark:border-gray-600">Forum Post Details</h3>
+            <input type="text" placeholder="Post Headline" [(ngModel)]="discussionForumPosting().headline" (ngModelChange)="updateField(discussionForumPosting, 'headline', $event)" class="mt-1 block w-full input-style">
+            <textarea placeholder="Post Body Text" [(ngModel)]="discussionForumPosting().text" (ngModelChange)="updateField(discussionForumPosting, 'text', $event)" rows="4" class="mt-1 block w-full input-style"></textarea>
+            <input type="text" placeholder="Author Name" [(ngModel)]="discussionForumPosting().authorName" (ngModelChange)="updateField(discussionForumPosting, 'authorName', $event)" class="mt-1 block w-full input-style">
+          </div>
+        }
+        @case('Event') {
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold border-b pb-2 dark:border-gray-600">Event Details</h3>
+                <input type="text" placeholder="Event Name" [(ngModel)]="event().name" (ngModelChange)="updateField(event, 'name', $event)" class="mt-1 block w-full input-style">
+                 <div class="flex gap-2">
+                    <input type="datetime-local" placeholder="Start Date" [(ngModel)]="event().startDate" (ngModelChange)="updateField(event, 'startDate', $event)" class="mt-1 block w-1/2 input-style">
+                    <input type="datetime-local" placeholder="End Date" [(ngModel)]="event().endDate" (ngModelChange)="updateField(event, 'endDate', $event)" class="mt-1 block w-1/2 input-style">
+                </div>
+                <input type="text" placeholder="Location Name (e.g., Madison Square Garden)" [(ngModel)]="event().locationName" (ngModelChange)="updateField(event, 'locationName', $event)" class="mt-1 block w-full input-style">
+                <input type="text" placeholder="Location Address" [(ngModel)]="event().locationAddress" (ngModelChange)="updateField(event, 'locationAddress', $event)" class="mt-1 block w-full input-style">
+            </div>
+        }
+        @case('ImageObject') {
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold border-b pb-2 dark:border-gray-600">Image Details</h3>
+                <input type="text" placeholder="Image Name / Title" [(ngModel)]="imageObject().name" (ngModelChange)="updateField(imageObject, 'name', $event)" class="mt-1 block w-full input-style">
+                <input type="url" placeholder="Image URL" [(ngModel)]="imageObject().contentUrl" (ngModelChange)="updateField(imageObject, 'contentUrl', $event)" class="mt-1 block w-full input-style">
+                <input type="text" placeholder="Author Name" [(ngModel)]="imageObject().author" (ngModelChange)="updateField(imageObject, 'author', $event)" class="mt-1 block w-full input-style">
+                <input type="url" placeholder="License URL" [(ngModel)]="imageObject().license" (ngModelChange)="updateField(imageObject, 'license', $event)" class="mt-1 block w-full input-style">
+            </div>
+        }
+        @case('JobPosting') {
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold border-b pb-2 dark:border-gray-600">Job Posting Details</h3>
+                <input type="text" placeholder="Job Title" [(ngModel)]="jobPosting().title" (ngModelChange)="updateField(jobPosting, 'title', $event)" class="mt-1 block w-full input-style">
+                <textarea placeholder="Description" [(ngModel)]="jobPosting().description" (ngModelChange)="updateField(jobPosting, 'description', $event)" rows="3" class="mt-1 block w-full input-style"></textarea>
+                <input type="text" placeholder="Hiring Organization Name" [(ngModel)]="jobPosting().hiringOrganizationName" (ngModelChange)="updateField(jobPosting, 'hiringOrganizationName', $event)" class="mt-1 block w-full input-style">
+                <input type="text" placeholder="Job Location (e.g., New York, NY)" [(ngModel)]="jobPosting().jobLocation" (ngModelChange)="updateField(jobPosting, 'jobLocation', $event)" class="mt-1 block w-full input-style">
+                 <div class="flex gap-2">
+                    <input type="number" placeholder="Base Salary (Annual)" [(ngModel)]="jobPosting().baseSalary" (ngModelChange)="updateField(jobPosting, 'baseSalary', $event)" class="mt-1 block w-1/2 input-style">
+                    <input type="text" placeholder="Currency (USD)" [(ngModel)]="jobPosting().currency" (ngModelChange)="updateField(jobPosting, 'currency', $event)" class="mt-1 block w-1/2 input-style">
+                </div>
+            </div>
+        }
+        @case('Movie') {
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold border-b pb-2 dark:border-gray-600">Movie Details</h3>
+                <input type="text" placeholder="Movie Name" [(ngModel)]="movie().name" (ngModelChange)="updateField(movie, 'name', $event)" class="mt-1 block w-full input-style">
+                <input type="text" placeholder="Director's Name" [(ngModel)]="movie().directorName" (ngModelChange)="updateField(movie, 'directorName', $event)" class="mt-1 block w-full input-style">
+                <input type="date" placeholder="Date Created" [(ngModel)]="movie().dateCreated" (ngModelChange)="updateField(movie, 'dateCreated', $event)" class="mt-1 block w-full input-style">
+                <input type="url" placeholder="Image/Poster URL" [(ngModel)]="movie().image" (ngModelChange)="updateField(movie, 'image', $event)" class="mt-1 block w-full input-style">
+            </div>
+        }
+        @case('Organization') {
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold border-b pb-2 dark:border-gray-600">Organization Details</h3>
+                <input type="text" placeholder="Organization Name" [(ngModel)]="organization().name" (ngModelChange)="updateField(organization, 'name', $event)" class="mt-1 block w-full input-style">
+                <input type="url" placeholder="Website URL" [(ngModel)]="organization().url" (ngModelChange)="updateField(organization, 'url', $event)" class="mt-1 block w-full input-style">
+                <input type="url" placeholder="Logo URL" [(ngModel)]="organization().logo" (ngModelChange)="updateField(organization, 'logo', $event)" class="mt-1 block w-full input-style">
+                 <div class="flex gap-2">
+                    <input type="number" step="0.1" placeholder="Aggregate Rating (e.g., 4.5)" [(ngModel)]="organization().aggregateRating" (ngModelChange)="updateField(organization, 'aggregateRating', $event)" class="mt-1 block w-1/2 input-style">
+                    <input type="number" placeholder="Rating Count" [(ngModel)]="organization().ratingCount" (ngModelChange)="updateField(organization, 'ratingCount', $event)" class="mt-1 block w-1/2 input-style">
+                </div>
+            </div>
+        }
+        @case('ProfilePage') {
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold border-b pb-2 dark:border-gray-600">Profile Page Details</h3>
+            <input type="text" placeholder="Person's Name" [(ngModel)]="profilePage().mainEntityName" (ngModelChange)="updateField(profilePage, 'mainEntityName', $event)" class="mt-1 block w-full input-style">
+            <input type="text" placeholder="Job Title" [(ngModel)]="profilePage().mainEntityJobTitle" (ngModelChange)="updateField(profilePage, 'mainEntityJobTitle', $event)" class="mt-1 block w-full input-style">
+            <input type="url" placeholder="Profile Image URL" [(ngModel)]="profilePage().mainEntityImage" (ngModelChange)="updateField(profilePage, 'mainEntityImage', $event)" class="mt-1 block w-full input-style">
+          </div>
+        }
+        @case('QAPage') {
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold border-b pb-2 dark:border-gray-600">Q&A Details</h3>
+                <input type="text" placeholder="Question" [(ngModel)]="qaPage().questionName" (ngModelChange)="updateField(qaPage, 'questionName', $event)" class="mt-1 block w-full input-style">
+                <textarea placeholder="Accepted Answer" [(ngModel)]="qaPage().answerText" (ngModelChange)="updateField(qaPage, 'answerText', $event)" rows="4" class="mt-1 block w-full input-style"></textarea>
+            </div>
+        }
+        @case('Recipe') {
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold border-b pb-2 dark:border-gray-600">Recipe Details</h3>
+                <input type="text" placeholder="Recipe Name" [(ngModel)]="recipe().name" (ngModelChange)="updateField(recipe, 'name', $event)" class="mt-1 block w-full input-style">
+                <textarea placeholder="Description" [(ngModel)]="recipe().description" (ngModelChange)="updateField(recipe, 'description', $event)" rows="3" class="mt-1 block w-full input-style"></textarea>
+                <div class="flex gap-2">
+                    <input type="text" placeholder="Prep Time (e.g., PT30M)" [(ngModel)]="recipe().prepTime" (ngModelChange)="updateField(recipe, 'prepTime', $event)" class="mt-1 block w-1/2 input-style">
+                    <input type="text" placeholder="Cook Time (e.g., PT1H)" [(ngModel)]="recipe().cookTime" (ngModelChange)="updateField(recipe, 'cookTime', $event)" class="mt-1 block w-1/2 input-style">
+                </div>
+                <textarea placeholder="Ingredients (one per line)" [(ngModel)]="recipe().recipeIngredient" (ngModelChange)="updateField(recipe, 'recipeIngredient', $event)" rows="5" class="mt-1 block w-full input-style"></textarea>
+            </div>
+        }
+        @case('Review') {
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold border-b pb-2 dark:border-gray-600">Review Details</h3>
+                <input type="text" placeholder="Item Reviewed (e.g., Product Name)" [(ngModel)]="review().itemName" (ngModelChange)="updateField(review, 'itemName', $event)" class="mt-1 block w-full input-style">
+                <input type="text" placeholder="Author's Name" [(ngModel)]="review().authorName" (ngModelChange)="updateField(review, 'authorName', $event)" class="mt-1 block w-full input-style">
+                <div class="flex gap-2">
+                    <input type="number" placeholder="Rating (e.g., 4.5)" [(ngModel)]="review().reviewRatingValue" (ngModelChange)="updateField(review, 'reviewRatingValue', $event)" class="mt-1 block w-1/3 input-style">
+                    <input type="number" placeholder="Best Rating (e.g., 5)" [(ngModel)]="review().bestRating" (ngModelChange)="updateField(review, 'bestRating', $event)" class="mt-1 block w-1/3 input-style">
+                    <input type="number" placeholder="Worst Rating (e.g., 1)" [(ngModel)]="review().worstRating" (ngModelChange)="updateField(review, 'worstRating', $event)" class="mt-1 block w-1/3 input-style">
+                </div>
+            </div>
+        }
+        @case('SoftwareApplication') {
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold border-b pb-2 dark:border-gray-600">Software App Details</h3>
+                <input type="text" placeholder="App Name" [(ngModel)]="softwareApplication().name" (ngModelChange)="updateField(softwareApplication, 'name', $event)" class="mt-1 block w-full input-style">
+                <input type="text" placeholder="Operating System (e.g., iOS, Android)" [(ngModel)]="softwareApplication().operatingSystem" (ngModelChange)="updateField(softwareApplication, 'operatingSystem', $event)" class="mt-1 block w-full input-style">
+                <input type="text" placeholder="Category (e.g., GameApplication)" [(ngModel)]="softwareApplication().applicationCategory" (ngModelChange)="updateField(softwareApplication, 'applicationCategory', $event)" class="mt-1 block w-full input-style">
+                 <div class="flex gap-2">
+                    <input type="number" step="0.1" placeholder="Rating Value (e.g., 4.5)" [(ngModel)]="softwareApplication().ratingValue" (ngModelChange)="updateField(softwareApplication, 'ratingValue', $event)" class="mt-1 block w-1/2 input-style">
+                    <input type="number" placeholder="Rating Count" [(ngModel)]="softwareApplication().ratingCount" (ngModelChange)="updateField(softwareApplication, 'ratingCount', $event)" class="mt-1 block w-1/2 input-style">
+                </div>
+            </div>
+        }
+        @case('VacationRental') {
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold border-b pb-2 dark:border-gray-600">Vacation Rental Details</h3>
+                <input type="text" placeholder="Property Name" [(ngModel)]="vacationRental().name" (ngModelChange)="updateField(vacationRental, 'name', $event)" class="mt-1 block w-full input-style">
+                <textarea placeholder="Description" [(ngModel)]="vacationRental().description" (ngModelChange)="updateField(vacationRental, 'description', $event)" rows="3" class="mt-1 block w-full input-style"></textarea>
+                <input type="url" placeholder="Image URL" [(ngModel)]="vacationRental().image" (ngModelChange)="updateField(vacationRental, 'image', $event)" class="mt-1 block w-full input-style">
+                <input type="text" placeholder="Address" [(ngModel)]="vacationRental().address" (ngModelChange)="updateField(vacationRental, 'address', $event)" class="mt-1 block w-full input-style">
+            </div>
+        }
+        @case('VideoObject') {
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold border-b pb-2 dark:border-gray-600">Video Details</h3>
+                <input type="text" placeholder="Video Title" [(ngModel)]="videoObject().name" (ngModelChange)="updateField(videoObject, 'name', $event)" class="mt-1 block w-full input-style">
+                <textarea placeholder="Description" [(ngModel)]="videoObject().description" (ngModelChange)="updateField(videoObject, 'description', $event)" rows="3" class="mt-1 block w-full input-style"></textarea>
+                <input type="date" placeholder="Upload Date" [(ngModel)]="videoObject().uploadDate" (ngModelChange)="updateField(videoObject, 'uploadDate', $event)" class="mt-1 block w-full input-style">
+                <input type="url" placeholder="Thumbnail URL" [(ngModel)]="videoObject().thumbnailUrl" (ngModelChange)="updateField(videoObject, 'thumbnailUrl', $event)" class="mt-1 block w-full input-style">
+                <input type="url" placeholder="Content URL" [(ngModel)]="videoObject().contentUrl" (ngModelChange)="updateField(videoObject, 'contentUrl', $event)" class="mt-1 block w-full input-style">
+            </div>
         }
       }
     </div>
 
     <!-- Preview Section -->
-    <div class="p-6 bg-gray-900 text-white rounded-lg shadow-md flex flex-col">
+    <div class="p-6 bg-gray-900 text-white rounded-lg shadow-md flex flex-col max-h-[80vh]">
       <div class="flex justify-between items-center mb-2">
         <h3 class="text-lg font-semibold">Live JSON-LD Preview</h3>
         <button (click)="copyToClipboard()" class="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">{{ copyButtonText() }}</button>

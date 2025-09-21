@@ -4,7 +4,7 @@
   [class.-translate-x-full]="!isOpen()">
   
   <div class="flex items-center justify-between h-16 px-4 border-b border-gray-200 dark:border-gray-700">
-    <h2 class="text-2xl font-bold text-orange-600 dark:text-orange-400">Navigation</h2>
+    <h2 class="text-sm font-bold text-orange-600 dark:text-orange-400">Documentation</h2>
     <button (click)="closeSidebar.emit()" class="p-2 rounded-md text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 lg:hidden">
       <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -12,22 +12,73 @@
     </button>
   </div>
 
-  <nav class="py-4">
-    <ul>
-      @for(item of navItems; track item.path) {
-        <li>
-          <a 
-            [routerLink]="item.path" 
-            routerLinkActive="active"
-            (click)="onLinkClick()"
-            class="flex items-center px-4 py-3 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
-            <svg class="h-6 w-6 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="item.icon" />
-            </svg>
-            <span>{{ item.name }}</span>
-          </a>
-        </li>
-      }
-    </ul>
-  </nav>
+  <div class="overflow-y-auto h-[calc(100vh-4rem)]">
+     <nav class="p-4">
+      <ul class="space-y-1">
+        @for (link of navLinks; track link.label) {
+          <li>
+            @if (link.children) {
+              <button (click)="toggleSubmenu(link.label)" class="w-full flex items-center justify-between p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                <div class="flex items-center">
+                  @if (link.icon) {
+                    <span class="material-icons-outlined w-6 h-6 text-gray-500 dark:text-gray-400 transition duration-75">
+                      {{ link.icon }}
+                    </span>
+                  }
+                  <span class="ml-3">{{ link.label }}</span>
+                </div>
+                <span class="material-icons-outlined transition-transform duration-200" [class.rotate-180]="openSubmenus()[link.label]">expand_more</span>
+              </button>
+              @if (openSubmenus()[link.label]) {
+                <ul class="pl-6 mt-1 space-y-1">
+                  @for (sublink of link.children; track sublink.label) {
+                    <li>
+                      @if (sublink.children) {
+                        <button (click)="toggleSubmenu(sublink.label)" class="w-full flex items-center justify-between p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                          <span class="ml-3">{{ sublink.label }}</span>
+                           <span class="material-icons-outlined transition-transform duration-200" [class.rotate-180]="openSubmenus()[sublink.label]">expand_more</span>
+                        </button>
+                        @if (openSubmenus()[sublink.label]) {
+                          <ul class="pl-6 mt-1 space-y-1">
+                            @for (grandchild of sublink.children; track grandchild.label) {
+                              <li>
+                                <a [routerLink]="grandchild.path" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="onLinkClick(grandchild.path)"
+                                   class="flex items-center w-full p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                                  <span class="ml-3">{{ grandchild.label }}</span>
+                                </a>
+                              </li>
+                            }
+                          </ul>
+                        }
+                      } @else {
+                        <a [routerLink]="sublink.path" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="onLinkClick(sublink.path)"
+                           class="flex items-center w-full p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                          @if (sublink.icon) {
+                            <span class="material-icons-outlined w-6 h-6 text-gray-500 dark:text-gray-400 group-[.active]:text-orange-600 dark:group-[.active]:text-orange-400 transition duration-75">
+                              {{ sublink.icon }}
+                            </span>
+                          }
+                          <span class="ml-3">{{ sublink.label }}</span>
+                        </a>
+                      }
+                    </li>
+                  }
+                </ul>
+              }
+            } @else {
+              <a [routerLink]="link.path" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="onLinkClick(link.path)"
+                 class="flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                @if (link.icon) {
+                  <span class="material-icons-outlined w-6 h-6 text-gray-500 dark:text-gray-400 group-[.active]:text-orange-600 dark:group-[.active]:text-orange-400 transition duration-75">
+                    {{ link.icon }}
+                  </span>
+                }
+                <span class="ml-3">{{ link.label }}</span>
+              </a>
+            }
+          </li>
+        }
+      </ul>
+    </nav>
+  </div>
 </aside>

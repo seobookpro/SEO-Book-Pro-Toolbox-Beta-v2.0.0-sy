@@ -1,0 +1,28 @@
+<div
+  class="fixed bottom-0 left-0 right-0 z-30 h-1/3 max-h-96 bg-gray-900/95 backdrop-blur-sm text-white shadow-2xl-top transform transition-transform duration-300 ease-in-out"
+  [class.translate-y-0]="isOpen()"
+  [class.translate-y-full]="!isOpen()"
+>
+  <!-- Header -->
+  <div class="flex justify-between items-center px-4 py-2 bg-gray-800 border-b border-gray-700">
+    <div class="flex items-center gap-2">
+      <span class="material-icons-outlined text-orange-400">assignment</span>
+      <h3 class="font-bold text-gray-200">SEO Book Pro Audit Log</h3>
+    </div>
+    <button (click)="close.emit()" class="p-1 rounded-full text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-orange-500">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- Body -->
+  <div class="p-4 h-[calc(100%-44px)] overflow-y-auto font-mono text-sm">
+    @for(log of logs; track log.timestamp) {
+      <div class="flex gap-4">
+        <span class="text-gray-500">{{ log.timestamp }}</span>
+        <span class="text-gray-300">{{ log.message }}</span>
+      </div>
+    }
+  </div>
+</div>

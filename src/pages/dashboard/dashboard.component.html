@@ -1,62 +1,91 @@
 <div class="space-y-8">
-  <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Welcome to SEO Book Pro</h1>
-    <p class="mt-2 text-lg text-gray-600 dark:text-gray-300">Your all-in-one toolkit for technical SEO excellence. Navigate to any of our tools using the sidebar or the cards below.</p>
+  <!-- Welcome Header -->
+  <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md text-center">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Welcome to Your SEO Toolbox Beta v2.0.25 r-c</h1>
+    <p class="mt-2 text-lg text-gray-600 dark:text-gray-300">All the tools you need to improve your website's technical SEO, in one place.</p>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    <!-- JSON-LD Generator Card -->
-    <a routerLink="/json-ld-generator" class="block p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl hover:-translate-y-1 transform transition-all duration-300">
-      <h2 class="text-xl font-semibold text-orange-600 dark:text-orange-400">JSON-LD Generator</h2>
-      <p class="mt-2 text-gray-600 dark:text-gray-300">Create structured data markup effortlessly. Select a schema, fill in the details, and get your JSON-LD code instantly.</p>
-    </a>
+  <!-- Tools Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
 
-    <!-- SEO Generator Card -->
-    <a routerLink="/seo-generator" class="block p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl hover:-translate-y-1 transform transition-all duration-300">
-      <h2 class="text-xl font-semibold text-orange-600 dark:text-orange-400">SEO Meta Tag Generator</h2>
-      <p class="mt-2 text-gray-600 dark:text-gray-300">Generate optimized meta titles, descriptions, Open Graph, and Twitter Card tags with a live preview.</p>
+    <a routerLink="/page-speed-analyzer" class="group block p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+      <div class="flex items-center">
+        <div class="p-3 rounded-full bg-orange-100 dark:bg-orange-900/50 text-orange-600 dark:text-orange-400">
+          <span class="material-icons-outlined">speed</span>
+        </div>
+        <h2 class="ml-4 text-xl font-bold text-gray-900 dark:text-white">Page Speed Analyzer</h2>
+      </div>
+      <p class="mt-2 text-gray-600 dark:text-gray-400">Analyze your page's performance and get actionable optimization tips powered by AI.</p>
     </a>
     
-    <!-- Page Speed Analyzer Card -->
-    <a routerLink="/page-speed-analyzer" class="block p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl hover:-translate-y-1 transform transition-all duration-300">
-      <h2 class="text-xl font-semibold text-orange-600 dark:text-orange-400">Page Speed Analyzer</h2>
-      <p class="mt-2 text-gray-600 dark:text-gray-300">Analyze your page speed, get key performance metrics, and receive actionable optimization suggestions.</p>
+    <a routerLink="/seo-audit-checklist" class="group block p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+      <div class="flex items-center">
+        <div class="p-3 rounded-full bg-orange-100 dark:bg-orange-900/50 text-orange-600 dark:text-orange-400">
+          <span class="material-icons-outlined">checklist</span>
+        </div>
+        <h2 class="ml-4 text-xl font-bold text-gray-900 dark:text-white">SEO Audit Checklist</h2>
+      </div>
+      <p class="mt-2 text-gray-600 dark:text-gray-400">Follow a comprehensive checklist for technical SEO audits. Your progress is saved automatically.</p>
     </a>
 
-    <!-- SEO Audit Checklist Card -->
-    <a routerLink="/seo-audit-checklist" class="block p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl hover:-translate-y-1 transform transition-all duration-300">
-      <h2 class="text-xl font-semibold text-orange-600 dark:text-orange-400">SEO Audit Checklist</h2>
-      <p class="mt-2 text-gray-600 dark:text-gray-300">Follow our comprehensive checklist to perform a technical SEO audit and track your progress.</p>
+    <a routerLink="/json-ld-generator" class="group block p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+      <div class="flex items-center">
+        <div class="p-3 rounded-full bg-orange-100 dark:bg-orange-900/50 text-orange-600 dark:text-orange-400">
+          <span class="material-icons-outlined">data_object</span>
+        </div>
+        <h2 class="ml-4 text-xl font-bold text-gray-900 dark:text-white">JSON-LD Generator</h2>
+      </div>
+      <p class="mt-2 text-gray-600 dark:text-gray-400">Create structured data for your content to be eligible for rich snippets in search results.</p>
     </a>
 
-    <!-- SEO Glossary Card -->
-    <a routerLink="/seo-glossary" class="block p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl hover:-translate-y-1 transform transition-all duration-300">
-      <h2 class="text-xl font-semibold text-orange-600 dark:text-orange-400">SEO Glossary</h2>
-      <p class="mt-2 text-gray-600 dark:text-gray-300">Look up common SEO terms and definitions in our comprehensive A-Z glossary.</p>
+    <a routerLink="/seo-generator" class="group block p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+      <div class="flex items-center">
+        <div class="p-3 rounded-full bg-orange-100 dark:bg-orange-900/50 text-orange-600 dark:text-orange-400">
+          <span class="material-icons-outlined">tag</span>
+        </div>
+        <h2 class="ml-4 text-xl font-bold text-gray-900 dark:text-white">Meta Tag Generator</h2>
+      </div>
+      <p class="mt-2 text-gray-600 dark:text-gray-400">Generate and preview SEO-friendly meta tags to improve your appearance in search results.</p>
+    </a>
+    
+    <a routerLink="/ai-chatbot" class="group block p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+      <div class="flex items-center">
+        <div class="p-3 rounded-full bg-orange-100 dark:bg-orange-900/50 text-orange-600 dark:text-orange-400">
+          <span class="material-icons-outlined">smart_toy</span>
+        </div>
+        <h2 class="ml-4 text-xl font-bold text-gray-900 dark:text-white">AI SEO Assistant</h2>
+      </div>
+      <p class="mt-2 text-gray-600 dark:text-gray-400">Ask our AI, powered by Google's Gemini, any technical SEO question you have.</p>
     </a>
 
-    <!-- AI Chatbot Card -->
-    <a routerLink="/ai-chatbot" class="block p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl hover:-translate-y-1 transform transition-all duration-300">
-      <h2 class="text-xl font-semibold text-orange-600 dark:text-orange-400">AI SEO Assistant</h2>
-      <p class="mt-2 text-gray-600 dark:text-gray-300">Have an SEO question? Our AI chatbot is here to help you with expert advice and suggestions 24/7.</p>
+    <a routerLink="/live-seo-audit" class="group block p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+      <div class="flex items-center">
+        <div class="p-3 rounded-full bg-orange-100 dark:bg-orange-900/50 text-orange-600 dark:text-orange-400">
+          <span class="material-icons-outlined">analytics</span>
+        </div>
+        <h2 class="ml-4 text-xl font-bold text-gray-900 dark:text-white">Live SEO Audit</h2>
+      </div>
+      <p class="mt-2 text-gray-600 dark:text-gray-400">Perform a live technical audit on any URL to find and fix common SEO issues.</p>
+    </a>
+    
+    <a routerLink="/seo-glossary" class="group block p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+      <div class="flex items-center">
+        <div class="p-3 rounded-full bg-orange-100 dark:bg-orange-900/50 text-orange-600 dark:text-orange-400">
+          <span class="material-icons-outlined">menu_book</span>
+        </div>
+        <h2 class="ml-4 text-xl font-bold text-gray-900 dark:text-white">SEO Glossary</h2>
+      </div>
+      <p class="mt-2 text-gray-600 dark:text-gray-400">A comprehensive A-Z list of common terms and phrases in the world of SEO.</p>
     </a>
 
-     <!-- FAQs Card -->
-    <a routerLink="/faqs" class="block p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl hover:-translate-y-1 transform transition-all duration-300">
-      <h2 class="text-xl font-semibold text-orange-600 dark:text-orange-400">FAQs</h2>
-      <p class="mt-2 text-gray-600 dark:text-gray-300">Find answers to common technical SEO questions in our comprehensive and searchable FAQ section.</p>
-    </a>
-
-     <!-- Documentation Card -->
-    <a routerLink="/documentation" class="block p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl hover:-translate-y-1 transform transition-all duration-300">
-      <h2 class="text-xl font-semibold text-orange-600 dark:text-orange-400">Documentation</h2>
-      <p class="mt-2 text-gray-600 dark:text-gray-300">Learn how to use our tools effectively with our detailed guides and code examples.</p>
-    </a>
-
-     <!-- Support Card -->
-    <a routerLink="/support" class="block p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl hover:-translate-y-1 transform transition-all duration-300">
-      <h2 class="text-xl font-semibold text-orange-600 dark:text-orange-400">Support</h2>
-      <p class="mt-2 text-gray-600 dark:text-gray-300">Need help? Reach out to our support team through our contact form.</p>
+    <a routerLink="/faqs" class="group block p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+      <div class="flex items-center">
+        <div class="p-3 rounded-full bg-orange-100 dark:bg-orange-900/50 text-orange-600 dark:text-orange-400">
+          <span class="material-icons-outlined">quiz</span>
+        </div>
+        <h2 class="ml-4 text-xl font-bold text-gray-900 dark:text-white">FAQs</h2>
+      </div>
+      <p class="mt-2 text-gray-600 dark:text-gray-400">Find answers to frequently asked questions about technical SEO and our tools.</p>
     </a>
   </div>
 </div>
