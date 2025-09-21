@@ -2,31 +2,10 @@ import { Component, ChangeDetectionStrategy, signal, computed } from '@angular/c
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-interface AuditResult {
-  title: {
-    text: string;
-    length: number;
-    status: 'ok' | 'missing' | 'too_long' | 'too_short';
-    recommendation: string;
-  };
-  description: {
-    text: string;
-    length: number;
-    status: 'ok' | 'missing' | 'too_long' | 'too_short';
-    recommendation: string;
-  };
-  h1: {
-    text: string;
-    count: number;
-    status: 'ok' | 'missing' | 'multiple';
-    recommendation: string;
-  };
-  images: {
-    count: number;
-    missingAlt: number;
-    status: 'ok' | 'improvement_needed';
-    recommendation: string;
-  };
+export interface AuditReportItem {
+  test: string;
+  extraInfo: string;
+  details: string; // Using string to allow for rich HTML content
 }
 
 type AuditStatus = 'idle' | 'loading' | 'success' | 'error';
@@ -95,8 +74,9 @@ const AUDIT_CHECKS_DATA: AuditCheck[] = [
 export class LiveSeoAuditComponent {
   url = signal('');
   status = signal<AuditStatus>('idle');
-  auditResult = signal<AuditResult | null>(null);
-  
+  showReportModal = signal(false);
+  auditReportData = signal<AuditReportItem[]>([]);
+
   // State for checkboxes, initialized to all selected
   selectedChecks = signal<Set<string>>(new Set(AUDIT_CHECKS_DATA.map(c => c.id)));
   
@@ -147,65 +127,150 @@ export class LiveSeoAuditComponent {
     const checksToRun = Array.from(this.selectedChecks());
     
     if (checksToRun.length === 0) {
-      // In a real app, you might show a more elegant notification.
       alert("Please select at least one audit check.");
       return;
     }
 
-    console.log('Analyzing URL:', this.url());
-    console.log('With selected checks:', checksToRun);
     this.status.set('loading');
-    this.auditResult.set(null);
+    this.auditReportData.set([]);
 
-    // Simulate an API call
     await new Promise(resolve => setTimeout(resolve, 2000));
 
-    // Create mock data
-    const mockResult: AuditResult = {
-      title: {
-        text: 'Example Domain - A Great Title',
-        length: 29,
-        status: 'ok',
-        recommendation: 'The title tag is a good length (between 10-60 characters).'
+    const mockReportData: AuditReportItem[] = [
+      {
+        test: 'Header Status',
+        extraInfo: 'Number of Header Status found: 1',
+        details: `
+          <p>Input URL: https://rankmath.com</p>
+          <p>Final URL: https://rankmath.com</p>
+          <p>Final Status: Fetch Failed Failed to fetch</p>
+          <a href="#" class="text-orange-600 dark:text-orange-400 hover:underline mt-2 inline-block">View Response Headers</a>
+        `
       },
-      description: {
-        text: 'This is an example meta description. It should be concise and relevant to the page content. A good length is between 50 and 160 characters.',
-        length: 155,
-        status: 'ok',
-        recommendation: 'The meta description is a good length.'
+      {
+        test: 'HTML Lang',
+        extraInfo: 'Number of HTML Lang found: 5',
+        details: 'en-US'
       },
-      h1: {
-        text: 'Example Domain',
-        count: 1,
-        status: 'ok',
-        recommendation: 'The page has a single H1 tag, which is great for SEO.'
+      {
+        test: 'Meta Title Tag',
+        extraInfo: 'Number of Meta Title Tag found: 49',
+        details: `
+          <p>📜 Title:Rank Math - Best Free WordPress SEO Tools in 2025</p>
+          <p>🔢 Length: 49 characters</p>
+          <p>🚫 Contains bad keywords: free, best</p>
+        `
       },
-      images: {
-        count: 5,
-        missingAlt: 1,
-        status: 'improvement_needed',
-        recommendation: '1 out of 5 images is missing descriptive alt text. Alt text helps search engines understand image content and improves accessibility.'
+      {
+        test: 'Meta Description',
+        extraInfo: 'Number of Meta Description found: 184',
+        details: `
+          <p>📄 Meta Description (MetaD):Rank Math WordPress SEO plugin will help you rank higher in search engines. DOWNLOAD for FREE this plugin today to optimize your WordPress website for higher rankings and more traffic.</p>
+          <p>🔢 Length: 184 characters</p>
+          <p>⚠️ Description is too long (limit: 160 characters)</p>
+          <p>🚫 Contains bad keywords: free</p>
+          <p>❗ Brand "Best Free WordPress SEO Tools in 2025" not found in the Meta Description (MetaD)</p>
+        `
+      },
+      {
+        test: 'H1 Headings',
+        extraInfo: 'Number of H1 Headings found: 1',
+        details: `
+          <p>H1 1 SEO for WordPress Made Easy</p>
+          <p>Status: Errors 🔴 Contains banned or harmful keywords</p>
+          <br>
+          <p>Total H1 tags: 1</p>
+        `
+      },
+      {
+        test: 'H2 Headings',
+        extraInfo: 'Number of H2 Headings found: 7',
+        details: `
+          <p>✅ #1: Powering SEO optimization for businesses around the world (57 chars)</p>
+          <p>✅ #2: What is Rank Math? (18 chars)</p>
+          <p>✅ #3: Recommended By The Best SEOs On The Planet (42 chars)</p>
+          <p>✅ #4: What you can do with Rank Math (30 chars)</p>
+          <p>✅ #5: Take The Guesswork Out Of SEO for WordPress (43 chars)</p>
+          <p>✅ #6: Your all-in-one solution for all the SEO needs (46 chars)</p>
+          <p>✅ #7: Leading SEOs are Loving Rank Math! (34 chars)</p>
+          <p>Total Headings: 7</p>
+        `
+      },
+      {
+        test: 'H3 Headings',
+        extraInfo: 'Number of H3 Headings found: 6',
+        details: `
+          <p>Rank Math Integrates With Your Favorite Platforms</p>
+          <p>Easy to Follow Setup Wizard</p>
+          <p>Clean, & Simple User Interface</p>
+        `
       }
-    };
+    ];
     
-    this.auditResult.set(mockResult);
+    this.auditReportData.set(mockReportData);
     this.status.set('success');
   }
   
+  openReportModal() {
+    this.showReportModal.set(true);
+  }
+
+  closeReportModal() {
+    this.showReportModal.set(false);
+  }
+
   reset() {
     this.url.set('');
     this.status.set('idle');
-    this.auditResult.set(null);
+    this.auditReportData.set([]);
+    this.closeReportModal();
+  }
+
+  private cleanHtmlForCsv(html: string): string {
+    // A simple regex to strip HTML tags and normalize whitespace
+    return html.replace(/<[^>]*>/g, ' ').replace(/\s\s+/g, ' ').trim();
   }
   
-  getStatusClass(status: 'ok' | 'missing' | 'too_long' | 'too_short' | 'multiple' | 'improvement_needed') {
-    switch(status) {
-      case 'ok':
-        return { icon: 'check_circle', color: 'text-green-500' };
-      case 'improvement_needed':
-        return { icon: 'warning', color: 'text-yellow-500' };
-      default:
-        return { icon: 'cancel', color: 'text-red-500' };
+  private escapeCsvField(field: string): string {
+    const cleanedField = field.replace(/"/g, '""'); // Escape double quotes
+    if (cleanedField.includes(',') || cleanedField.includes('\n') || cleanedField.includes('"')) {
+      return `"${cleanedField}"`;
+    }
+    return cleanedField;
+  }
+
+  exportToCsv() {
+    const reportData = this.auditReportData();
+    if (reportData.length === 0) {
+      console.warn('No audit data to export.');
+      return;
+    }
+
+    const headers = ['Test', 'Extra Info', 'Details'];
+    const csvRows = [headers.join(',')];
+
+    reportData.forEach(item => {
+      const row = [
+        this.escapeCsvField(item.test),
+        this.escapeCsvField(item.extraInfo),
+        this.escapeCsvField(this.cleanHtmlForCsv(item.details))
+      ];
+      csvRows.push(row.join(','));
+    });
+
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    
+    const link = document.createElement('a');
+    if (link.download !== undefined) { // Check for download attribute support
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', 'seo-audit-report.csv');
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
     }
   }
 }

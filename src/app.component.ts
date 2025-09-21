@@ -6,7 +6,6 @@ import { SidebarRightComponent } from './components/sidebar-right/sidebar-right.
 import { ThemeService } from './services/theme.service';
 import { BreadcrumbComponent } from './components/breadcrumb/breadcrumb.component';
 import { BreadcrumbService } from './services/breadcrumb.service';
-import { SEO_BOOK_PRO_LOGO_BASE64 } from './assets/logo';
 import { AuditLogConsoleComponent } from './components/audit-log-console/audit-log-console.component';
 
 @Component({
@@ -31,7 +30,6 @@ export class AppComponent {
   // Inject to initialize the service and its router event subscription
   private breadcrumbService = inject(BreadcrumbService);
 
-  logo = SEO_BOOK_PRO_LOGO_BASE64;
   leftSidebarOpen = signal(false);
   rightSidebarOpen = signal(false);
   auditLogOpen = signal(false);

@@ -87,72 +87,85 @@
     </div>
   }
 
-  @if (status() === 'success' && auditResult()) {
-    @let result = auditResult()!;
-    <div class="space-y-6">
-        <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                <div>
-                    <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">Audit Results for:</h2>
-                    <p class="text-lg text-orange-600 dark:text-orange-400 break-all">{{ url() }}</p>
-                </div>
+  @if (status() === 'success') {
+    <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">Audit Complete for:</h2>
+                <p class="text-lg text-orange-600 dark:text-orange-400 break-all">{{ url() }}</p>
+            </div>
+            <div class="flex items-center gap-4">
+                 <button (click)="openReportModal()" class="bg-blue-600 text-white rounded-lg px-6 py-2 font-semibold hover:bg-blue-700 transition-colors">
+                    View Report
+                </button>
                  <button (click)="reset()" class="bg-orange-600 text-white rounded-lg px-6 py-2 font-semibold hover:bg-orange-700 transition-colors">
                     Audit Another Page
                 </button>
             </div>
         </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- Title Tag -->
-          <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-            <div class="flex items-center">
-              @let titleStatus = getStatusClass(result.title.status);
-              <span class="material-icons-outlined text-3xl" [class]="titleStatus.color">{{ titleStatus.icon }}</span>
-              <h3 class="ml-3 text-xl font-semibold">Title Tag</h3>
-            </div>
-            <p class="mt-2 text-gray-600 dark:text-gray-400">"{{ result.title.text }}"</p>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-500">Length: {{ result.title.length }} characters.</p>
-            <p class="mt-2 text-sm text-gray-700 dark:text-gray-300">{{ result.title.recommendation }}</p>
-          </div>
-
-          <!-- Meta Description -->
-          <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-            <div class="flex items-center">
-               @let descStatus = getStatusClass(result.description.status);
-               <span class="material-icons-outlined text-3xl" [class]="descStatus.color">{{ descStatus.icon }}</span>
-              <h3 class="ml-3 text-xl font-semibold">Meta Description</h3>
-            </div>
-            <p class="mt-2 text-gray-600 dark:text-gray-400">"{{ result.description.text }}"</p>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-500">Length: {{ result.description.length }} characters.</p>
-            <p class="mt-2 text-sm text-gray-700 dark:text-gray-300">{{ result.description.recommendation }}</p>
-          </div>
-          
-          <!-- H1 Tag -->
-          <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-            <div class="flex items-center">
-              @let h1Status = getStatusClass(result.h1.status);
-               <span class="material-icons-outlined text-3xl" [class]="h1Status.color">{{ h1Status.icon }}</span>
-              <h3 class="ml-3 text-xl font-semibold">H1 Tag</h3>
-            </div>
-             @if (result.h1.count > 0) {
-              <p class="mt-2 text-gray-600 dark:text-gray-400">"{{ result.h1.text }}"</p>
-             }
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-500">Found {{ result.h1.count }} H1 tag(s).</p>
-            <p class="mt-2 text-sm text-gray-700 dark:text-gray-300">{{ result.h1.recommendation }}</p>
-          </div>
-
-          <!-- Image Alt Text -->
-          <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-            <div class="flex items-center">
-               @let imgStatus = getStatusClass(result.images.status);
-               <span class="material-icons-outlined text-3xl" [class]="imgStatus.color">{{ imgStatus.icon }}</span>
-              <h3 class="ml-3 text-xl font-semibold">Image Alt Text</h3>
-            </div>
-            <p class="mt-2 text-gray-600 dark:text-gray-400">Found {{ result.images.count }} images.</p>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-500">{{ result.images.missingAlt }} image(s) missing alt text.</p>
-            <p class="mt-2 text-sm text-gray-700 dark:text-gray-300">{{ result.images.recommendation }}</p>
-          </div>
-      </div>
     </div>
   }
 </div>
+
+<!-- Audit Report Modal -->
+@if (showReportModal()) {
+  <div class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" (click)="closeReportModal()">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl w-full max-w-5xl h-[90vh] flex flex-col" (click)="$event.stopPropagation()">
+      <!-- Modal Header -->
+      <div class="flex justify-between items-center p-4 border-b dark:border-gray-700 flex-shrink-0">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Audit Report Preview</h2>
+        <button (click)="closeReportModal()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+          <span class="material-icons-outlined">close</span>
+        </button>
+      </div>
+
+      <!-- Modal Body (Table) -->
+      <div class="flex-grow p-4 overflow-y-auto">
+        <table class="min-w-full border-collapse">
+          <thead class="bg-gray-50 dark:bg-gray-700/50 sticky top-0 z-10">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-wider w-1/5 border-b dark:border-gray-600">
+                Test
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-wider w-1/5 border-b dark:border-gray-600">
+                Extra Info
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-wider w-3/5 border-b dark:border-gray-600">
+                Details
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            @for (item of auditReportData(); track item.test) {
+              <tr>
+                <td class="px-6 py-4 align-top text-sm font-medium text-gray-900 dark:text-white">
+                  {{ item.test }}
+                </td>
+                <td class="px-6 py-4 align-top text-sm text-gray-700 dark:text-gray-300">
+                  {{ item.extraInfo }}
+                </td>
+                <td class="px-6 py-4 align-top text-sm text-gray-700 dark:text-gray-300 prose prose-sm dark:prose-invert max-w-none" [innerHTML]="item.details">
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="flex justify-end items-center p-4 border-t dark:border-gray-700 space-x-2 flex-shrink-0">
+        <button (click)="exportToCsv()" class="px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2">
+          <span class="material-icons-outlined text-base">file_download</span>
+          CSV
+        </button>
+        <button class="px-4 py-2 rounded-md border border-red-500 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2">
+          <span class="material-icons-outlined text-base">picture_as_pdf</span>
+          PDF
+        </button>
+        <button (click)="closeReportModal()" class="px-4 py-2 rounded-md bg-gray-600 text-white hover:bg-gray-700">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+}
