@@ -1,6 +1,7 @@
-import { Component, ChangeDetectionStrategy, signal, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-seo-generator',
@@ -9,8 +10,11 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './seo-generator.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SeoGeneratorComponent {
+export class SeoGeneratorComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+
   copyButtonText = signal('Copy Tags');
+  shareCopyText = signal('Share Configuration');
 
   // Form data signals
   title = signal('Your Awesome Page Title');
@@ -22,6 +26,42 @@ export class SeoGeneratorComponent {
   twitterSite = signal('@yourhandle');
   canonicalUrl = signal('https://example.com/your-page');
   robotsContent = signal('index, follow');
+
+  ngOnInit(): void {
+    const params = this.route.snapshot.queryParams;
+    if (params['title']) {
+      this.title.set(decodeURIComponent(params['title']));
+    }
+    if (params['description']) {
+      this.description.set(decodeURIComponent(params['description']));
+    }
+    if (params['canonicalUrl']) {
+      const canonical = decodeURIComponent(params['canonicalUrl']);
+      this.canonicalUrl.set(canonical);
+      this.url.set(canonical);
+    }
+    if (params['ogImage']) {
+      this.ogImage.set(decodeURIComponent(params['ogImage']));
+    }
+  }
+
+  private shareableUrl = computed(() => {
+    const baseUrl = window.location.href.split('?')[0];
+    const params = new URLSearchParams({
+      title: this.title(),
+      description: this.description(),
+      canonicalUrl: this.canonicalUrl(),
+      ogImage: this.ogImage(),
+    });
+    return `${baseUrl}?${params.toString()}`;
+  });
+
+  copyShareUrl() {
+    navigator.clipboard.writeText(this.shareableUrl()).then(() => {
+      this.shareCopyText.set('Link Copied!');
+      setTimeout(() => this.shareCopyText.set('Share Configuration'), 2000);
+    });
+  }
 
   generatedHtml = computed(() => {
     return `<!-- Primary Meta Tags -->
