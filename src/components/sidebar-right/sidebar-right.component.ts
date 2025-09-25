@@ -18,7 +18,7 @@ export class SidebarRightComponent {
   private themeService = inject(ThemeService);
 
   // Expose theme signals to the template
-  darkMode = this.themeService.darkMode;
+  theme = this.themeService.theme;
   showHeader = this.themeService.showHeader;
   showFooter = this.themeService.showFooter;
 
@@ -37,8 +37,8 @@ export class SidebarRightComponent {
     { path: '/support', label: 'Support', icon: 'support_agent' }
   ];
 
-  toggleDarkMode(): void {
-    this.themeService.toggleDarkMode();
+  setTheme(theme: 'light' | 'dark' | 'system'): void {
+    this.themeService.setTheme(theme);
   }
 
   toggleHeader(): void {

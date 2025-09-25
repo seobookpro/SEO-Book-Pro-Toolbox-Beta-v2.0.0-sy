@@ -17,7 +17,7 @@ export class SeoGeneratorComponent {
   description = signal('An engaging and concise description of your page content goes here. Keep it under 160 characters for best results.');
   url = signal('https://example.com/your-page');
   ogType = signal('website');
-  ogImage = signal('https://example.com/image.jpg');
+  ogImage = signal('https://picsum.photos/1200/630');
   twitterCard = signal('summary_large_image');
   twitterSite = signal('@yourhandle');
   canonicalUrl = signal('https://example.com/your-page');
@@ -51,5 +51,19 @@ export class SeoGeneratorComponent {
       this.copyButtonText.set('Copied!');
       setTimeout(() => this.copyButtonText.set('Copy Tags'), 2000);
     });
+  }
+
+  getDomain(pageUrl: string): string {
+    try {
+      // Use URL constructor to easily parse the hostname
+      return new URL(pageUrl).hostname.replace('www.', '');
+    } catch (e) {
+      // If the URL is invalid, return a placeholder
+      const match = pageUrl.match(/:\/\/(www[0-9]?\.)?(.[^/:]+)/i);
+      if (match != null && match.length > 2 && typeof match[2] === 'string' && match[2].length > 0) {
+        return match[2];
+      }
+      return 'example.com';
+    }
   }
 }

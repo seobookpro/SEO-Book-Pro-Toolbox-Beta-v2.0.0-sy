@@ -29,10 +29,10 @@ export const SEO_CHECKLIST_DATA: ChecklistItem[] = [
   { id: 'check-structured-data', category: 'On-Page Elements', task: 'Check for structured data opportunities', details: 'Implement schema markup (like Article, Product, FAQ) to be eligible for rich snippets.' },
 
   // Site Architecture
-  { id: 'check-site-structure', category: 'Site Architecture', task: 'Check for a logical site structure', details: 'Ensure your site is easy to navigate and important pages are not buried too deep.' },
-  { id: 'use-breadcrumbs', category: 'Site Architecture', task: 'Use breadcrumbs', details: 'Help users and search engines understand the page hierarchy.' },
-  { id: 'check-urls', category: 'Site Architecture', task: 'Ensure URLs are SEO-friendly', details: 'Use simple, readable URLs with keywords where appropriate.' },
-  { id: 'use-canonicals', category: 'Site Architecture', task: 'Use canonical tags for duplicate content', details: 'Specify the preferred version of a page to avoid duplicate content issues.' },
+  { id: 'check-site-structure', category: 'Site Architecture', task: 'Check for logical site structure and page depth', details: 'Ensure your site has a clear navigational hierarchy and that key pages are reachable within a few clicks from the homepage.' },
+  { id: 'use-breadcrumbs', category: 'Site Architecture', task: 'Use breadcrumbs', details: 'Implement breadcrumbs to help users and search engines understand the page hierarchy and navigate the site easily.' },
+  { id: 'check-urls', category: 'Site Architecture', task: 'Ensure URLs are SEO-friendly', details: 'Use simple, descriptive, and readable URLs with keywords where appropriate, avoiding long strings of parameters.' },
+  { id: 'use-canonicals', category: 'Site Architecture', task: 'Use canonical tags for duplicate content', details: 'Specify the preferred "master" version of a page to consolidate link equity and avoid duplicate content issues.' },
 
   // Content
   { id: 'find-thin-content', category: 'Content', task: 'Find and improve thin content', details: 'Expand pages with little or no content to provide more value to users.' },
@@ -51,7 +51,6 @@ export const SEO_CHECKLIST_DATA: ChecklistItem[] = [
   { id: 'enable-compression', category: 'Site Speed', task: 'Enable Gzip or Brotli compression', details: 'Reduce the size of your CSS, HTML, and JavaScript files.' },
   { id: 'minify-css-js', category: 'Site Speed', task: 'Minify CSS, JavaScript, and HTML', details: 'Remove unnecessary characters from code without changing its functionality.' },
   { id: 'leverage-caching', category: 'Site Speed', task: 'Leverage browser caching', details: 'Instruct browsers to store static assets locally to speed up repeat visits.' },
-  // FIX: Corrected typo 'id:g' to 'id:'.
   { id: 'use-cdn', category: 'Site Speed', task: 'Use a Content Delivery Network (CDN)', details: 'Serve your content from servers closer to your users to reduce latency.' },
 
   // Security
