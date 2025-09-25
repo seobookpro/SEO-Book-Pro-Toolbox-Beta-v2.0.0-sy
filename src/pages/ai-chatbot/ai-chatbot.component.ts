@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, signal, inject, ElementRef, viewChild, afterNextRender } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, inject, ElementRef, viewChild, afterNextRender, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GeminiService, ChatMessage } from '../../services/gemini.service';
@@ -10,7 +10,7 @@ import { GeminiService, ChatMessage } from '../../services/gemini.service';
   templateUrl: './ai-chatbot.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AiChatbotComponent {
+export class AiChatbotComponent implements OnInit {
   private geminiService = inject(GeminiService);
   
   messages = signal<ChatMessage[]>([
@@ -27,6 +27,10 @@ export class AiChatbotComponent {
     });
   }
 
+  ngOnInit(): void {
+    this.geminiService.startChat();
+  }
+
   async sendMessage() {
     const prompt = this.userInput().trim();
     if (!prompt || this.isLoading()) {
@@ -38,7 +42,7 @@ export class AiChatbotComponent {
     this.isLoading.set(true);
     this.scrollToBottom();
 
-    const responseText = await this.geminiService.generateContent(prompt);
+    const responseText = await this.geminiService.sendChatMessage(prompt);
     
     this.messages.update(m => [...m, { role: 'model', text: responseText }]);
     this.isLoading.set(false);
