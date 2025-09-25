@@ -1,8 +1,9 @@
 import { Component, ChangeDetectionStrategy, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-import { lastValueFrom } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { lastValueFrom, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 
 export interface AuditReportItem {
   test: string;
@@ -52,10 +53,8 @@ const AUDIT_CHECKS_DATA: AuditCheck[] = [
   { id: 'image-alt', label: 'Image ALT Attributes', category: 'Content & Keywords' },
   
   // Links
-  { id: 'link-profile', label: 'Link Profile', category: 'Links' },
-  { id: 'internal-links', label: 'Internal Links', category: 'Links' },
-  { id: 'external-links', label: 'External Links', category: 'Links' },
-  { id: 'http-links', label: 'HTTP Links', category: 'Links' },
+  { id: 'broken-links', label: 'Broken Links Check', category: 'Links' },
+  { id: 'http-links', label: 'Insecure (HTTP) Links', category: 'Links' },
   
   // Advanced & Technical
   { id: 'js-type', label: 'JavaScript Type', category: 'Advanced & Technical' },
@@ -165,87 +164,7 @@ export class LiveSeoAuditComponent {
       }
       
       if (doc) {
-        // Meta Title
-        if (checksToRun.has('meta-title')) {
-          const titleEl = doc.querySelector('title');
-          const title = titleEl?.textContent || '';
-          const titleLength = title.length;
-          let details = `<p>📜 <strong>Title:</strong> ${title || 'Not found'}</p>`;
-          details += `<p>🔢 <strong>Length:</strong> ${titleLength} characters</p>`;
-          if (titleLength === 0) {
-              details += `<p class="text-red-500">❌ Title tag is missing or empty.</p>`;
-          } else if (titleLength > 60) {
-              details += `<p class="text-yellow-500">⚠️ Title is too long (over 60 characters). It may be truncated in search results.</p>`;
-          } else {
-              details += `<p class="text-green-500">✅ Title length is good.</p>`;
-          }
-          newReportData.push({ test: 'Meta Title Tag', extraInfo: `${titleLength} characters`, details });
-        }
-        
-        // Meta Description
-        if (checksToRun.has('meta-description')) {
-            const descEl = doc.querySelector('meta[name="description"]');
-            const description = descEl?.getAttribute('content') || '';
-            const descLength = description.length;
-            let details = `<p>📄 <strong>Description:</strong> ${description || 'Not found'}</p>`;
-            details += `<p>🔢 <strong>Length:</strong> ${descLength} characters</p>`;
-            if (descLength === 0) {
-                details += `<p class="text-red-500">❌ Meta description is missing or empty.</p>`;
-            } else if (descLength > 160) {
-                details += `<p class="text-yellow-500">⚠️ Description is too long (over 160 characters).</p>`;
-            } else {
-                details += `<p class="text-green-500">✅ Description length is good.</p>`;
-            }
-            newReportData.push({ test: 'Meta Description', extraInfo: `${descLength} characters`, details });
-        }
-        
-        // H1 Headings
-        if (checksToRun.has('h1')) {
-            const h1s = doc.querySelectorAll('h1');
-            let details = '';
-            if (h1s.length === 0) {
-                details = `<p class="text-red-500">❌ No H1 tag found. Each page should have one H1.</p>`;
-            } else {
-                h1s.forEach((h1, index) => {
-                    details += `<p><strong>H1 #${index + 1}:</strong> ${h1.textContent}</p>`;
-                });
-                if (h1s.length > 1) {
-                    details += `<p class="text-yellow-500">⚠️ Multiple H1 tags found (${h1s.length}). It's best practice to use only one per page.</p>`;
-                } else {
-                     details += `<p class="text-green-500">✅ Exactly one H1 tag found.</p>`;
-                }
-            }
-            newReportData.push({ test: 'H1 Headings', extraInfo: `Found: ${h1s.length}`, details });
-        }
-        
-        // Canonical Tag
-        if (checksToRun.has('canonical-tag')) {
-            const canonicalEl = doc.querySelector('link[rel="canonical"]');
-            const canonicalHref = canonicalEl?.getAttribute('href');
-            let details = '';
-            if (canonicalHref) {
-                details = `<p><strong>Canonical URL:</strong> <a href="${canonicalHref}" target="_blank" class="text-orange-600 dark:text-orange-400 hover:underline">${canonicalHref}</a></p>`;
-                 details += `<p class="text-green-500">✅ Canonical tag is present.</p>`;
-            } else {
-                details = `<p class="text-red-500">❌ No canonical tag found. This can lead to duplicate content issues.</p>`;
-            }
-            newReportData.push({ test: 'Canonical Tag', extraInfo: canonicalHref ? 'Found' : 'Missing', details });
-        }
-        
-        // HTML Lang
-        if (checksToRun.has('html-lang')) {
-            const lang = doc.documentElement.lang;
-            let details = '';
-            if (lang) {
-                details = `<p><strong>Language attribute:</strong> ${lang}</p>`;
-                details += `<p class="text-green-500">✅ HTML lang attribute is set.</p>`;
-            } else {
-                details = `<p class="text-yellow-500">⚠️ HTML lang attribute is not set. It's recommended for accessibility and SEO.</p>`;
-            }
-             newReportData.push({ test: 'HTML Lang', extraInfo: lang || 'Not set', details });
-        }
-        
-        // Meta Charset
+        // --- META & HEAD CHECKS ---
         if (checksToRun.has('meta-charset')) {
             const charsetEl = doc.querySelector('meta[charset]');
             const charset = charsetEl?.getAttribute('charset');
@@ -262,8 +181,17 @@ export class LiveSeoAuditComponent {
             }
             newReportData.push({ test: 'Meta Charset', extraInfo: charset || 'Missing', details });
         }
-
-        // Meta Viewport
+        if (checksToRun.has('html-lang')) {
+            const lang = doc.documentElement.lang;
+            let details = '';
+            if (lang) {
+                details = `<p><strong>Language attribute:</strong> ${lang}</p>`;
+                details += `<p class="text-green-500">✅ HTML lang attribute is set.</p>`;
+            } else {
+                details = `<p class="text-yellow-500">⚠️ HTML lang attribute is not set. It's recommended for accessibility and SEO.</p>`;
+            }
+             newReportData.push({ test: 'HTML Lang', extraInfo: lang || 'Not set', details });
+        }
         if (checksToRun.has('meta-viewport')) {
             const viewportEl = doc.querySelector('meta[name="viewport"]');
             const content = viewportEl?.getAttribute('content');
@@ -280,8 +208,6 @@ export class LiveSeoAuditComponent {
             }
             newReportData.push({ test: 'Meta Viewport', extraInfo: content ? 'Found' : 'Missing', details });
         }
-
-        // Favicon Link
         if (checksToRun.has('favicon-link')) {
             const faviconEls = doc.querySelectorAll('link[rel*="icon"]');
             let details = '';
@@ -295,8 +221,6 @@ export class LiveSeoAuditComponent {
             }
             newReportData.push({ test: 'Favicon Link', extraInfo: `Found: ${faviconEls.length}`, details });
         }
-
-        // Preconnect Google Fonts
         if (checksToRun.has('preconnect-google-fonts')) {
             const preconnectEls = doc.querySelectorAll('link[rel="preconnect"][href*="fonts.gstatic.com"], link[rel="preconnect"][href*="fonts.googleapis.com"]');
             let details = '';
@@ -307,8 +231,6 @@ export class LiveSeoAuditComponent {
             }
             newReportData.push({ test: 'Preconnect Google Fonts', extraInfo: preconnectEls.length > 0 ? 'Found' : 'Not Found', details });
         }
-        
-        // Shortlink, EditURI, API Links
         const simpleLinkChecks = [
             { id: 'shortlink-link', rel: 'shortlink', name: 'Shortlink' },
             { id: 'edituri-link', rel: 'EditURI', name: 'EditURI' },
@@ -323,8 +245,6 @@ export class LiveSeoAuditComponent {
                 newReportData.push({ test: `${check.name} Link`, extraInfo: href ? 'Found' : 'Not Found', details });
             }
         });
-        
-        // Hreflang Link
         if (checksToRun.has('hreflang-link')) {
             const hreflangEls = doc.querySelectorAll('link[rel="alternate"][hreflang]');
             let details = '';
@@ -337,8 +257,6 @@ export class LiveSeoAuditComponent {
             }
             newReportData.push({ test: 'Hreflang Link', extraInfo: `Found: ${hreflangEls.length}`, details });
         }
-        
-        // RSS Link
         if (checksToRun.has('rss-link')) {
             const rssEls = doc.querySelectorAll('link[rel="alternate"][type*="rss+xml"], link[rel="alternate"][type*="atom+xml"]');
             let details = '';
@@ -351,8 +269,6 @@ export class LiveSeoAuditComponent {
             }
             newReportData.push({ test: 'RSS Link', extraInfo: `Found: ${rssEls.length}`, details });
         }
-        
-        // Empty Meta Tags
         if (checksToRun.has('empty-meta-tags')) {
             const metaTags = doc.querySelectorAll('meta[name][content=""], meta[property][content=""]');
             let details = '';
@@ -365,8 +281,48 @@ export class LiveSeoAuditComponent {
             }
             newReportData.push({ test: 'Empty Meta Tags', extraInfo: `Found: ${metaTags.length}`, details });
         }
-        
-        // OpenGraph Meta
+        if (checksToRun.has('meta-title')) {
+          const titleEl = doc.querySelector('title');
+          const title = titleEl?.textContent || '';
+          const titleLength = title.length;
+          let details = `<p>📜 <strong>Title:</strong> ${title || 'Not found'}</p>`;
+          details += `<p>🔢 <strong>Length:</strong> ${titleLength} characters</p>`;
+          if (titleLength === 0) {
+              details += `<p class="text-red-500">❌ Title tag is missing or empty.</p>`;
+          } else if (titleLength > 60) {
+              details += `<p class="text-yellow-500">⚠️ Title is too long (over 60 characters). It may be truncated in search results.</p>`;
+          } else {
+              details += `<p class="text-green-500">✅ Title length is good.</p>`;
+          }
+          newReportData.push({ test: 'Meta Title Tag', extraInfo: `${titleLength} characters`, details });
+        }
+        if (checksToRun.has('meta-description')) {
+            const descEl = doc.querySelector('meta[name="description"]');
+            const description = descEl?.getAttribute('content') || '';
+            const descLength = description.length;
+            let details = `<p>📄 <strong>Description:</strong> ${description || 'Not found'}</p>`;
+            details += `<p>🔢 <strong>Length:</strong> ${descLength} characters</p>`;
+            if (descLength === 0) {
+                details += `<p class="text-red-500">❌ Meta description is missing or empty.</p>`;
+            } else if (descLength > 160) {
+                details += `<p class="text-yellow-500">⚠️ Description is too long (over 160 characters).</p>`;
+            } else {
+                details += `<p class="text-green-500">✅ Description length is good.</p>`;
+            }
+            newReportData.push({ test: 'Meta Description', extraInfo: `${descLength} characters`, details });
+        }
+        if (checksToRun.has('canonical-tag')) {
+            const canonicalEl = doc.querySelector('link[rel="canonical"]');
+            const canonicalHref = canonicalEl?.getAttribute('href');
+            let details = '';
+            if (canonicalHref) {
+                details = `<p><strong>Canonical URL:</strong> <a href="${canonicalHref}" target="_blank" class="text-orange-600 dark:text-orange-400 hover:underline">${canonicalHref}</a></p>`;
+                 details += `<p class="text-green-500">✅ Canonical tag is present.</p>`;
+            } else {
+                details = `<p class="text-red-500">❌ No canonical tag found. This can lead to duplicate content issues.</p>`;
+            }
+            newReportData.push({ test: 'Canonical Tag', extraInfo: canonicalHref ? 'Found' : 'Missing', details });
+        }
         if (checksToRun.has('opengraph-meta')) {
             const ogTags = doc.querySelectorAll('meta[property^="og:"]');
             let details = '';
@@ -379,8 +335,6 @@ export class LiveSeoAuditComponent {
             }
             newReportData.push({ test: 'OpenGraph Meta', extraInfo: `Found: ${ogTags.length}`, details });
         }
-
-        // Robots Meta Tag
         if (checksToRun.has('robots-meta')) {
             const robotsEl = doc.querySelector('meta[name="robots"]');
             const content = robotsEl?.getAttribute('content');
@@ -397,6 +351,263 @@ export class LiveSeoAuditComponent {
             }
             newReportData.push({ test: 'Robots Meta Tag', extraInfo: content || 'Not Found', details });
         }
+
+        // --- CONTENT & KEYWORDS CHECKS ---
+        if (checksToRun.has('top-keywords')) {
+            const text = doc.body.textContent || '';
+            const stopWords = new Set(['the', 'a', 'an', 'in', 'is', 'it', 'and', 'of', 'to', 'for', 'on', 'with', 'as', 'by', 'that', 'this', 'i', 'you', 'he', 'she', 'we', 'they', 'are', 'was', 'were', 'be', 'been', 'has', 'have', 'had', 'do', 'does', 'did', 'or', 'but', 'if', 'at', 'from', 'not']);
+            const words = text.toLowerCase().match(/\b(\w{3,})\b/g) || [];
+            const wordCounts: { [key: string]: number } = {};
+            words.forEach(word => {
+                if (!stopWords.has(word)) {
+                    wordCounts[word] = (wordCounts[word] || 0) + 1;
+                }
+            });
+            const sortedKeywords = Object.entries(wordCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
+            let details = '';
+            if (sortedKeywords.length > 0) {
+                details = '<p>Top 10 most frequent words (3+ letters, excluding common stop words):</p><ul class="list-decimal pl-5">';
+                sortedKeywords.forEach(([word, count]) => {
+                    details += `<li><strong>${word}</strong>: ${count} times</li>`;
+                });
+                details += '</ul>';
+            } else {
+                details = '<p>Could not extract significant keywords from the page content.</p>';
+            }
+            newReportData.push({ test: 'Top Keywords', extraInfo: `Top ${sortedKeywords.length} found`, details });
+        }
+        for (let i = 1; i <= 6; i++) {
+            const heading = `h${i}`;
+            if (checksToRun.has(heading)) {
+                const headings = doc.querySelectorAll(heading);
+                let details = '';
+                if (i === 1) { // Special logic for H1
+                    if (headings.length === 0) {
+                        details = `<p class="text-red-500">❌ No H1 tag found. Each page should have one H1.</p>`;
+                    } else {
+                        headings.forEach((h1, index) => { details += `<p><strong>H1 #${index + 1}:</strong> ${h1.textContent}</p>`; });
+                        if (headings.length > 1) {
+                            details += `<p class="text-yellow-500">⚠️ Multiple H1 tags found (${headings.length}). It's best practice to use only one per page.</p>`;
+                        } else {
+                             details += `<p class="text-green-500">✅ Exactly one H1 tag found.</p>`;
+                        }
+                    }
+                } else { // Logic for H2-H6
+                    if (headings.length > 0) {
+                        details = '<ul class="list-disc pl-5">';
+                        headings.forEach(h => { details += `<li>${h.textContent?.trim()}</li>`; });
+                        details += '</ul>';
+                    } else {
+                        details = `<p>No ${heading.toUpperCase()} headings found.</p>`;
+                    }
+                }
+                newReportData.push({ test: `${heading.toUpperCase()} Headings`, extraInfo: `Found: ${headings.length}`, details });
+            }
+        }
+        if (checksToRun.has('paragraphs')) {
+            const count = doc.querySelectorAll('p').length;
+            newReportData.push({ test: 'Paragraphs', extraInfo: `Found: ${count}`, details: `<p>The page contains ${count} paragraph elements.</p>` });
+        }
+        if (checksToRun.has('spans')) {
+            const count = doc.querySelectorAll('span').length;
+            newReportData.push({ test: 'Spans', extraInfo: `Found: ${count}`, details: `<p>The page contains ${count} span elements.</p>` });
+        }
+        if (checksToRun.has('ul-li-list')) {
+            const ulCount = doc.querySelectorAll('ul').length;
+            const liCount = doc.querySelectorAll('li').length;
+            newReportData.push({ test: 'Unorered UL/LI List', extraInfo: `Found: ${ulCount} ULs, ${liCount} LIs`, details: `<p>The page contains ${ulCount} unordered lists and ${liCount} list items.</p>` });
+        }
+        if (checksToRun.has('image-alt')) {
+            const images = doc.querySelectorAll('img');
+            const totalImages = images.length;
+            const missingAlt = Array.from(images).filter(img => !img.alt || img.alt.trim() === '');
+            let details = `<p>Found ${totalImages} image(s) on the page.</p>`;
+            if (missingAlt.length > 0) {
+                details += `<p class="text-red-500">❌ ${missingAlt.length} image(s) are missing an alt attribute or it is empty.</p>`;
+                details += `<h4 class="font-bold mt-2">Images with missing alt text:</h4><ul class="list-disc pl-5 break-all">`;
+                missingAlt.forEach(img => { details += `<li>${img.src}</li>`; });
+                details += `</ul>`;
+            } else if (totalImages > 0) {
+                details += `<p class="text-green-500">✅ All ${totalImages} image(s) have alt attributes.</p>`;
+            } else {
+                details += `<p>No images found on the page.</p>`;
+            }
+            newReportData.push({ test: 'Image ALT Attributes', extraInfo: `${missingAlt.length} missing / ${totalImages} total`, details });
+        }
+        
+        // --- LINKS CHECKS ---
+        if (checksToRun.has('http-links')) {
+            const httpLinks = Array.from(doc.querySelectorAll('a[href^="http://"]'));
+            let details = '';
+            if (httpLinks.length === 0) {
+                details = `<p class="text-green-500">✅ No insecure (HTTP) links found.</p>`;
+            } else {
+                details = `<p class="text-yellow-500">⚠️ Found ${httpLinks.length} links using insecure HTTP. Consider updating them to HTTPS.</p><ul class="list-disc pl-5">`;
+                httpLinks.forEach(l => {
+                    const href = l.getAttribute('href');
+                    details += `<li><a href="${href}" target="_blank" class="text-orange-600 dark:text-orange-400 hover:underline">${href}</a></li>`;
+                });
+                details += '</ul>';
+            }
+            newReportData.push({ test: 'Insecure (HTTP) Links', extraInfo: `Found: ${httpLinks.length}`, details });
+        }
+
+        // --- ADVANCED & TECHNICAL ---
+        if (checksToRun.has('js-type')) {
+            const scripts = doc.querySelectorAll('script');
+            const outdatedScripts = Array.from(scripts).filter(s => s.type === 'text/javascript');
+            let details = `<p>Found ${scripts.length} script tag(s).</p>`;
+            if (outdatedScripts.length > 0) {
+                details += `<p class="text-yellow-500">⚠️ Found ${outdatedScripts.length} script(s) with the outdated 'text/javascript' type attribute. This attribute is no longer necessary for JavaScript.</p>`;
+            } else {
+                details += `<p class="text-green-500">✅ No scripts with outdated type attributes found.</p>`;
+            }
+            newReportData.push({ test: 'JavaScript Type', extraInfo: `${outdatedScripts.length} outdated`, details });
+        }
+        if (checksToRun.has('json-ld')) {
+            const ldJsonScripts = doc.querySelectorAll('script[type="application/ld+json"]');
+            let details = '';
+            if (ldJsonScripts.length > 0) {
+                details += `<p class="text-green-500">✅ Found ${ldJsonScripts.length} JSON-LD script tag(s).</p>`;
+                ldJsonScripts.forEach((script, index) => {
+                    try {
+                        const json = JSON.parse(script.textContent || '{}');
+                        details += `<h4 class="font-bold mt-2">Schema #${index + 1}</h4><pre class="bg-gray-100 dark:bg-gray-900 p-2 rounded-md whitespace-pre-wrap break-all"><code>${JSON.stringify(json, null, 2)}</code></pre>`;
+                    } catch (e) {
+                        details += `<h4 class="font-bold mt-2">Schema #${index + 1} (Invalid JSON)</h4><pre class="bg-red-100 dark:bg-red-900 p-2 rounded-md">${script.textContent}</pre>`;
+                    }
+                });
+            } else {
+                details = `<p class="text-yellow-500">⚠️ No JSON-LD schema markup found.</p>`;
+            }
+            newReportData.push({ test: 'JSON-LD Schema Markup', extraInfo: `Found: ${ldJsonScripts.length}`, details });
+        }
+        if (checksToRun.has('technologies')) {
+            const detected: string[] = [];
+            const rawHtmlForTechCheck = response.body || '';
+            if (doc.querySelector('meta[name="generator"][content*="WordPress"]') || rawHtmlForTechCheck.includes('wp-content')) { if (!detected.includes('WordPress')) detected.push('WordPress'); }
+            if (doc.querySelector('meta[name="generator"][content*="Joomla"]')) { if (!detected.includes('Joomla')) detected.push('Joomla'); }
+            if (doc.querySelector('meta[name="generator"][content*="Drupal"]')) { if (!detected.includes('Drupal')) detected.push('Drupal'); }
+            if (doc.querySelector('#__next') || doc.querySelector('script[id="__NEXT_DATA__"]')) { if (!detected.includes('Next.js (React)')) detected.push('Next.js (React)'); }
+            if (doc.querySelector('[data-reactroot], script[src*="react"]')) { if (!detected.includes('React') && !detected.includes('Next.js (React)')) detected.push('React'); }
+            if (doc.documentElement.getAttribute('ng-version')) { if (!detected.includes('Angular')) detected.push('Angular'); }
+            if (doc.querySelector('[data-n-head]')) { if (!detected.includes('Nuxt.js (Vue)')) detected.push('Nuxt.js (Vue)'); }
+            if (rawHtmlForTechCheck.includes('jquery.js') || rawHtmlForTechCheck.includes('jquery.min.js')) { if (!detected.includes('jQuery')) detected.push('jQuery'); }
+            if (doc.querySelector('link[href*="bootstrap.css"], link[href*="bootstrap.min.css"]')) { if (!detected.includes('Bootstrap CSS')) detected.push('Bootstrap CSS'); }
+            
+            let details = '';
+            if(detected.length > 0) {
+                details = '<ul class="list-disc pl-5">';
+                detected.forEach(tech => { details += `<li>${tech}</li>`; });
+                details += '</ul>';
+            } else {
+                details = '<p>Could not confidently detect specific technologies. This may be a custom-built site.</p>';
+            }
+            newReportData.push({ test: 'Technologies Detected', extraInfo: `Found: ${detected.length}`, details });
+        }
+      }
+
+      // --- ASYNC CHECKS (Links, Robots, Sitemap) ---
+      const origin = new URL(targetUrl).origin;
+      let robotsTxtContent = '';
+
+      if (checksToRun.has('robots-txt-check') || checksToRun.has('sitemap-check')) {
+        const robotsUrl = `${origin}/robots.txt`;
+        try {
+            const robotsProxyUrl = `https://corsproxy.io/?${encodeURIComponent(robotsUrl)}`;
+            robotsTxtContent = await lastValueFrom(this.http.get(robotsProxyUrl, { responseType: 'text' }));
+            if (checksToRun.has('robots-txt-check')) {
+                newReportData.push({
+                    test: 'robots.txt Check',
+                    extraInfo: 'Found',
+                    details: `<p>Found robots.txt at <a href="${robotsUrl}" target="_blank" class="text-orange-600 dark:text-orange-400 hover:underline">${robotsUrl}</a></p><pre class="bg-gray-100 dark:bg-gray-900 p-2 rounded-md whitespace-pre-wrap break-all">${robotsTxtContent}</pre>`
+                });
+            }
+        } catch (e) {
+            robotsTxtContent = '';
+            if (checksToRun.has('robots-txt-check')) {
+                newReportData.push({
+                    test: 'robots.txt Check',
+                    extraInfo: 'Not Found',
+                    details: `<p class="text-yellow-500">⚠️ No robots.txt file found at ${robotsUrl}. It's recommended to have one, even if it's empty.</p>`
+                });
+            }
+        }
+      }
+
+      if (checksToRun.has('sitemap-check')) {
+          if (!robotsTxtContent) {
+              newReportData.push({ test: 'XML Sitemap Index and URLs', extraInfo: 'Unknown', details: '<p>Could not check for sitemap because robots.txt was not found or could not be fetched.</p>' });
+          } else {
+              const sitemapUrls = (robotsTxtContent.match(/Sitemap:\s*(.*)/gi) || []).map(line => line.split(/:\s*/)[1].trim());
+              if (sitemapUrls.length > 0) {
+                  let details = `<p>Found ${sitemapUrls.length} sitemap URL(s) in robots.txt:</p>`;
+                  for (const sitemapUrl of sitemapUrls) {
+                      details += `<p>Fetching <a href="${sitemapUrl}" target="_blank" class="text-orange-600 dark:text-orange-400 hover:underline">${sitemapUrl}</a>...</p>`;
+                      try {
+                          const sitemapProxyUrl = `https://corsproxy.io/?${encodeURIComponent(sitemapUrl)}`;
+                          const sitemapContent = await lastValueFrom(this.http.get(sitemapProxyUrl, { responseType: 'text' }));
+                          details += `<pre class="bg-gray-100 dark:bg-gray-900 p-2 rounded-md whitespace-pre-wrap break-all">${sitemapContent.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>`;
+                      } catch (e) {
+                          details += `<p class="text-red-500">❌ Failed to fetch sitemap from ${sitemapUrl}.</p>`;
+                      }
+                  }
+                  newReportData.push({ test: 'XML Sitemap Index and URLs', extraInfo: `Found: ${sitemapUrls.length}`, details });
+              } else {
+                  newReportData.push({ test: 'XML Sitemap Index and URLs', extraInfo: 'Not Found', details: `<p class="text-yellow-500">⚠️ No sitemap URL specified in robots.txt.</p>` });
+              }
+          }
+      }
+      
+      if (doc && checksToRun.has('broken-links')) {
+            const links = Array.from(doc.querySelectorAll('a[href]'));
+            const baseUrl = new URL(targetUrl);
+            const uniqueUrlsToCheck = new Set<string>();
+            links.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href && !href.startsWith('#') && !href.startsWith('mailto:') && !href.startsWith('tel:') && !href.startsWith('javascript:')) {
+                    try {
+                        const absoluteUrl = new URL(href, baseUrl.href).href;
+                        const urlWithoutHash = absoluteUrl.split('#')[0];
+                        uniqueUrlsToCheck.add(urlWithoutHash);
+                    } catch (e) { /* ignore invalid URLs */ }
+                }
+            });
+            const linkCheckPromises = Array.from(uniqueUrlsToCheck).map(url => 
+                lastValueFrom(this.http.head(`https://corsproxy.io/?${encodeURIComponent(url)}`, { observe: 'response', responseType: 'text' }).pipe(
+                    map(response => ({ url, status: response.status, ok: response.ok })),
+                    catchError((error: HttpErrorResponse) => of({ url, status: error.status, ok: false }))
+                ))
+            );
+            const results = await Promise.all(linkCheckPromises);
+            const brokenLinks = results.filter(res => res.status >= 400);
+            const internalBroken = brokenLinks.filter(l => new URL(l.url).hostname === baseUrl.hostname);
+            const externalBroken = brokenLinks.filter(l => new URL(l.url).hostname !== baseUrl.hostname);
+            let details = '';
+            if (brokenLinks.length === 0) {
+                details = `<p class="text-green-500">✅ No broken links found out of ${uniqueUrlsToCheck.size} unique links checked.</p>`;
+            } else {
+                details = `<p class="text-red-500">❌ Found ${brokenLinks.length} broken links out of ${uniqueUrlsToCheck.size} unique links checked.</p>`;
+                if (internalBroken.length > 0) {
+                    details += `<h4 class="font-bold mt-2">Broken Internal Links (${internalBroken.length}):</h4><ul class="list-disc pl-5">`;
+                    internalBroken.forEach(l => { details += `<li><span class="font-semibold text-red-500">${l.status}</span>: <a href="${l.url}" target="_blank" class="text-orange-600 dark:text-orange-400 hover:underline">${l.url}</a></li>`; });
+                    details += '</ul>';
+                }
+                if (externalBroken.length > 0) {
+                    details += `<h4 class="font-bold mt-2">Broken External Links (${externalBroken.length}):</h4><ul class="list-disc pl-5">`;
+                    externalBroken.forEach(l => { details += `<li><span class="font-semibold text-red-500">${l.status}</span>: <a href="${l.url}" target="_blank" class="text-orange-600 dark:text-orange-400 hover:underline">${l.url}</a></li>`; });
+                    details += '</ul>';
+                }
+            }
+            newReportData.push({ test: 'Broken Links Check', extraInfo: `Found: ${brokenLinks.length}`, details });
+        }
+      
+      if (checksToRun.has('pagespeed-score')) {
+        newReportData.push({
+            test: 'Google PageSpeed Score',
+            extraInfo: 'Coming Soon',
+            details: '<p>This check requires integration with the Google PageSpeed Insights API, which is a separate service. This feature is planned for a future update.</p>'
+        });
       }
 
       this.auditReportData.set(newReportData);
