@@ -41,6 +41,7 @@ const AUDIT_CHECKS_DATA: AuditCheck[] = [
   
   // Content & Keywords
   { id: 'top-keywords', label: 'Top Keywords', category: 'Content & Keywords' },
+  { id: 'keyword-analysis', label: 'Keyword Analysis', category: 'Content & Keywords' },
   { id: 'h1', label: 'H1 Headings', category: 'Content & Keywords' },
   { id: 'h2', label: 'H2 Headings', category: 'Content & Keywords' },
   { id: 'h3', label: 'H3 Headings', category: 'Content & Keywords' },
@@ -375,6 +376,92 @@ export class LiveSeoAuditComponent {
                 details = '<p>Could not extract significant keywords from the page content.</p>';
             }
             newReportData.push({ test: 'Top Keywords', extraInfo: `Top ${sortedKeywords.length} found`, details });
+        }
+        if (checksToRun.has('keyword-analysis')) {
+            const stopWords = new Set(['the', 'a', 'an', 'in', 'is', 'it', 'and', 'of', 'to', 'for', 'on', 'with', 'as', 'by', 'that', 'this', 'i', 'you', 'he', 'she', 'we', 'they', 'are', 'was', 'were', 'be', 'been', 'has', 'have', 'had', 'do', 'does', 'did', 'or', 'but', 'if', 'at', 'from', 'not', 'its', 'also', 'your', 'can', 'will', 'all', 'our', 'my', 'so', 'just', 'out', 'up', 'down', 'what', 'who', 'when', 'where', 'why', 'how', 'which', 'get', 'set', 'new']);
+
+            const titleText = (doc.querySelector('title')?.textContent || '').toLowerCase();
+            const descriptionText = (doc.querySelector('meta[name="description"]')?.getAttribute('content') || '').toLowerCase();
+            const h1sText = Array.from(doc.querySelectorAll('h1')).map(h => h.textContent?.toLowerCase() || '').join(' ');
+            const h2sText = Array.from(doc.querySelectorAll('h2')).map(h => h.textContent?.toLowerCase() || '').join(' ');
+            
+            const words = (doc.body.textContent || '').trim().split(/\s+/);
+            const totalWords = words.length;
+            const cleanedWords = words.map(w => w.toLowerCase().replace(/[^\w-]/g, '')).filter(Boolean);
+
+            const getNgrams = (wordList: string[], n: number): string[] => {
+                const ngrams: string[] = [];
+                if (wordList.length < n) return [];
+                for (let i = 0; i <= wordList.length - n; i++) {
+                    const ngramWords = wordList.slice(i, i + n);
+                    if (!stopWords.has(ngramWords[0]) && !stopWords.has(ngramWords[ngramWords.length - 1])) {
+                        ngrams.push(ngramWords.join(' '));
+                    }
+                }
+                return ngrams;
+            };
+
+            const singleWords = cleanedWords.filter(w => w.length > 2 && !stopWords.has(w));
+            const twoWordPhrases = getNgrams(cleanedWords, 2);
+            const threeWordPhrases = getNgrams(cleanedWords, 3);
+
+            const allTerms = [...singleWords, ...twoWordPhrases, ...threeWordPhrases];
+            
+            const termCounts: { [key: string]: number } = {};
+            allTerms.forEach(term => {
+                termCounts[term] = (termCounts[term] || 0) + 1;
+            });
+
+            const sortedTerms = Object.entries(termCounts)
+                .filter(([term, count]) => count > 1) // Only show terms that appear more than once
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+            
+            let details = '';
+            if (sortedTerms.length > 0) {
+                details = `
+                    <p>Analysis of the top ${sortedTerms.length} keywords and phrases found on the page, based on frequency. Density is calculated against a total of ${totalWords} words.</p>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <thead class="bg-gray-50 dark:bg-gray-700/50">
+                                <tr>
+                                    <th class="px-2 py-2 text-left text-xs font-medium">Keyword/Phrase</th>
+                                    <th class="px-2 py-2 text-left text-xs font-medium">Count</th>
+                                    <th class="px-2 py-2 text-left text-xs font-medium">Density</th>
+                                    <th class="px-2 py-2 text-center text-xs font-medium" title="In Title Tag">Title</th>
+                                    <th class="px-2 py-2 text-center text-xs font-medium" title="In Meta Description">Desc.</th>
+                                    <th class="px-2 py-2 text-center text-xs font-medium" title="In H1 Headings">H1</th>
+                                    <th class="px-2 py-2 text-center text-xs font-medium" title="In H2 Headings">H2</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                `;
+
+                sortedTerms.forEach(([term, count]) => {
+                    const density = ((count / totalWords) * 100).toFixed(2);
+                    const inTitle = titleText.includes(term) ? '✅' : '❌';
+                    const inDescription = descriptionText.includes(term) ? '✅' : '❌';
+                    const inH1s = h1sText.includes(term) ? '✅' : '❌';
+                    const inH2s = h2sText.includes(term) ? '✅' : '❌';
+
+                    details += `
+                        <tr>
+                            <td class="px-2 py-2 font-semibold">${term}</td>
+                            <td class="px-2 py-2">${count}</td>
+                            <td class="px-2 py-2">${density}%</td>
+                            <td class="px-2 py-2 text-center">${inTitle}</td>
+                            <td class="px-2 py-2 text-center">${inDescription}</td>
+                            <td class="px-2 py-2 text-center">${inH1s}</td>
+                            <td class="px-2 py-2 text-center">${inH2s}</td>
+                        </tr>
+                    `;
+                });
+                details += `</tbody></table></div>`;
+            } else {
+                details = '<p>Could not extract any significant keywords or phrases (appearing more than once) from the page content.</p>';
+            }
+
+            newReportData.push({ test: 'Keyword Analysis', extraInfo: `Top ${sortedTerms.length} terms`, details });
         }
         for (let i = 1; i <= 6; i++) {
             const heading = `h${i}`;
