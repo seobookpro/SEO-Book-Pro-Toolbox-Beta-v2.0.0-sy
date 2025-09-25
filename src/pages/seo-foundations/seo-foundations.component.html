@@ -1,1 +1,161 @@
-full contents of src/pages/seo-foundations/seo-foundations.component.html
+<div class="space-y-8">
+  <!-- Welcome Header -->
+  <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md text-center">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Understanding SEO Foundations</h1>
+    <p class="mt-2 text-lg text-gray-600 dark:text-gray-300">A beginner's guide to the core principles of Search Engine Optimization.</p>
+  </div>
+
+  <!-- The Three Pillars of SEO -->
+  <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold text-center mb-6">The Three Pillars of SEO</h2>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- Pillar 1: Technical SEO -->
+      <div class="flex flex-col p-6 border dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+        <div class="flex items-center">
+          <div class="p-3 rounded-full bg-orange-100 dark:bg-orange-900/50 text-orange-600 dark:text-orange-400">
+            <span class="material-icons-outlined">settings</span>
+          </div>
+          <h3 class="ml-4 text-xl font-bold text-gray-900 dark:text-white">Technical SEO</h3>
+        </div>
+        <p class="mt-2 text-gray-600 dark:text-gray-400 flex-grow">This is the foundation of your website. It ensures search engines can find, crawl, and index your site without any issues.</p>
+        <ul class="mt-4 space-y-2 list-disc pl-5 text-gray-600 dark:text-gray-400">
+          <li>Site Speed & Core Web Vitals</li>
+          <li>Crawlability & Indexability</li>
+          <li>Mobile-Friendliness</li>
+          <li>Site Security (HTTPS)</li>
+          <li>XML Sitemaps</li>
+          <li>robots.txt</li>
+        </ul>
+        <div class="mt-auto pt-4">
+          <h4 class="font-semibold text-sm mb-2">Related Tools:</h4>
+          <div class="flex flex-wrap gap-2">
+            <a routerLink="/page-speed-analyzer" class="tool-link">Page Speed Analyzer</a>
+            <a routerLink="/live-seo-audit" class="tool-link">Live SEO Audit</a>
+            <a routerLink="/seo-audit-checklist" class="tool-link">SEO Checklist</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pillar 2: On-Page SEO -->
+      <div class="flex flex-col p-6 border dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+        <div class="flex items-center">
+          <div class="p-3 rounded-full bg-orange-100 dark:bg-orange-900/50 text-orange-600 dark:text-orange-400">
+            <span class="material-icons-outlined">article</span>
+          </div>
+          <h3 class="ml-4 text-xl font-bold text-gray-900 dark:text-white">On-Page SEO</h3>
+        </div>
+        <p class="mt-2 text-gray-600 dark:text-gray-400 flex-grow">This involves optimizing the content and HTML source code of your pages to be relevant and valuable for specific keywords.</p>
+        <ul class="mt-4 space-y-2 list-disc pl-5 text-gray-600 dark:text-gray-400">
+          <li>Keyword Research & Targeting</li>
+          <li>High-Quality Content</li>
+          <li>Title Tags & Meta Descriptions</li>
+          <li>Header Tags (H1, H2, etc.)</li>
+          <li>Image SEO (Alt Text)</li>
+          <li>Structured Data (Schema)</li>
+        </ul>
+        <div class="mt-auto pt-4">
+          <h4 class="font-semibold text-sm mb-2">Related Tools:</h4>
+          <div class="flex flex-wrap gap-2">
+            <a routerLink="/content-analyzer" class="tool-link">Content Analyzer</a>
+            <a routerLink="/seo-generator" class="tool-link">Meta Tag Generator</a>
+            <a routerLink="/json-ld-generator" class="tool-link">JSON-LD Generator</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pillar 3: Off-Page SEO -->
+      <div class="flex flex-col p-6 border dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+        <div class="flex items-center">
+          <div class="p-3 rounded-full bg-orange-100 dark:bg-orange-900/50 text-orange-600 dark:text-orange-400">
+            <span class="material-icons-outlined">groups</span>
+          </div>
+          <h3 class="ml-4 text-xl font-bold text-gray-900 dark:text-white">Off-Page SEO</h3>
+        </div>
+        <p class="mt-2 text-gray-600 dark:text-gray-400 flex-grow">These are actions taken outside of your website to build its authority and reputation, primarily through earning links from other credible sites.</p>
+        <ul class="mt-4 space-y-2 list-disc pl-5 text-gray-600 dark:text-gray-400">
+          <li>Backlink Building</li>
+          <li>Brand Mentions</li>
+          <li>Local SEO (Google Business Profile)</li>
+          <li>Social Media Marketing</li>
+          <li>Guest Blogging</li>
+        </ul>
+        <div class="mt-auto pt-4">
+          <h4 class="font-semibold text-sm mb-2">Related Info:</h4>
+           <div class="flex flex-wrap gap-2">
+            <a routerLink="/seo-glossary" class="tool-link">SEO Glossary</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  
+  <!-- Key Concepts Explained -->
+  <div class="prose dark:prose-invert max-w-none p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold">Key Concepts to Master</h2>
+    
+    <h3>Keywords & Search Intent</h3>
+    <p>
+      <strong>Keywords</strong> are the words and phrases people type into search engines. But it's not enough to just know the keywords; you must understand the <strong>Search Intent</strong> behind them. Why is the user searching for this? Are they looking to buy something (transactional), learn something (informational), find a specific website (navigational), or research before buying (commercial)? Matching your content to the user's intent is critical for ranking well.
+    </p>
+
+    <h3>E-A-T: Expertise, Authoritativeness, and Trustworthiness</h3>
+    <p>
+      E-A-T is part of Google's framework for evaluating content quality. It's especially important for topics that could impact a person's health or finances (called "Your Money or Your Life" or YMYL pages).
+    </p>
+    <ul>
+      <li><strong>Expertise:</strong> The content is created by someone with proven knowledge in the field.</li>
+      <li><strong>Authoritativeness:</strong> The website and author are recognized as a go-to source for the topic. This is often demonstrated by backlinks from other respected sites.</li>
+      <li><strong>Trustworthiness:</strong> The website is secure (HTTPS), has clear contact information, and presents information accurately and honestly.</li>
+    </ul>
+    
+    <h3>How Search Engines Work: Crawling, Indexing, Ranking</h3>
+    <p>
+      Search engines work in three main stages:
+    </p>
+    <ol>
+      <li><strong>Crawling:</strong> Search engine bots (spiders) discover publicly available webpages by following links.</li>
+      <li><strong>Indexing:</strong> They process and store the information from these pages in a massive database called an index.</li>
+      <li><strong>Ranking:</strong> When a user performs a search, the search engine scours its index for the most relevant pages and displays them in order of relevance on the search results page.</li>
+    </ol>
+    <p>
+      Your job in SEO is to make all three of these steps as easy as possible for search engines.
+    </p>
+  </div>
+
+  <!-- Getting Started -->
+  <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold mb-4">How to Get Started with Your SEO</h2>
+    <ol class="space-y-4">
+      <li class="flex items-start">
+        <div class="step-circle">1</div>
+        <div class="ml-4">
+          <h3 class="font-semibold">Run a Technical Audit</h3>
+          <p class="text-gray-600 dark:text-gray-400">Use our <a routerLink="/live-seo-audit" class="text-orange-600 hover:underline">Live SEO Audit</a> tool to find the technical health of your site. This will give you a baseline and a list of immediate issues to fix.</p>
+        </div>
+      </li>
+      <li class="flex items-start">
+        <div class="step-circle">2</div>
+        <div class="ml-4">
+          <h3 class="font-semibold">Identify Your Target Keywords</h3>
+          <p class="text-gray-600 dark:text-gray-400">What do you want to be known for? What are your customers searching for? Make a list of your most important keywords.</p>
+        </div>
+      </li>
+      <li class="flex items-start">
+        <div class="step-circle">3</div>
+        <div class="ml-4">
+          <h3 class="font-semibold">Optimize Your Key Pages</h3>
+          <p class="text-gray-600 dark:text-gray-400">For your most important pages, use the <a routerLink="/seo-generator" class="text-orange-600 hover:underline">Meta Tag Generator</a> and <a routerLink="/content-analyzer" class="text-orange-600 hover:underline">Content Analyzer</a> to ensure they are optimized for your target keywords and provide excellent content.</p>
+        </div>
+      </li>
+      <li class="flex items-start">
+        <div class="step-circle">4</div>
+        <div class="ml-4">
+          <h3 class="font-semibold">Follow the Checklist</h3>
+          <p class="text-gray-600 dark:text-gray-400">Work your way through the <a routerLink="/seo-audit-checklist" class="text-orange-600 hover:underline">SEO Audit Checklist</a> to ensure you haven't missed any important steps.</p>
+        </div>
+      </li>
+    </ol>
+  </div>
+</div>
