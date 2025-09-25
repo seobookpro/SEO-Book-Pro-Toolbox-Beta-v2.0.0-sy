@@ -29,8 +29,10 @@ export class SidebarLeftComponent {
       icon: 'build',
       children: [
         { label: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
+        { label: 'SEO Foundations', path: '/seo-foundations', icon: 'foundation' },
         { label: 'Page Speed Analyzer', path: '/page-speed-analyzer', icon: 'speed' },
         { label: 'Live SEO Audit', path: '/live-seo-audit', icon: 'analytics' },
+        { label: 'Content Analyzer', path: '/content-analyzer', icon: 'document_scanner' },
         { label: 'SEO Audit Checklist', path: '/seo-audit-checklist', icon: 'checklist' },
         { label: 'JSON-LD Generator', path: '/json-ld-generator', icon: 'data_object' },
         { label: 'Meta Tag Generator', path: '/seo-generator', icon: 'tag' },

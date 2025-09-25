@@ -28,6 +28,11 @@ export const APP_ROUTES: Routes = [
         data: { breadcrumb: 'SEO Audit Checklist' }
     },
     {
+        path: 'seo-foundations',
+        loadComponent: () => import('./pages/seo-foundations/seo-foundations.component').then(m => m.SeoFoundationsComponent),
+        data: { breadcrumb: 'SEO Foundations' }
+    },
+    {
         path: 'seo-glossary',
         loadComponent: () => import('./pages/seo-glossary/seo-glossary.component').then(m => m.SeoGlossaryComponent),
         data: { breadcrumb: 'SEO Glossary' }
@@ -41,6 +46,11 @@ export const APP_ROUTES: Routes = [
         path: 'live-seo-audit',
         loadComponent: () => import('./pages/live-seo-audit/live-seo-audit.component').then(m => m.LiveSeoAuditComponent),
         data: { breadcrumb: 'Live SEO Audit' }
+    },
+    {
+        path: 'content-analyzer',
+        loadComponent: () => import('./pages/content-analyzer/content-analyzer.component').then(m => m.ContentAnalyzerComponent),
+        data: { breadcrumb: 'Content Analyzer' }
     },
     {
         path: 'documentation',

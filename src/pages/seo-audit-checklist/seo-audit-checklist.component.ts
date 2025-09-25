@@ -19,6 +19,7 @@ export class SeoAuditChecklistComponent implements OnInit {
   // State Signals
   completedTasks = signal<CompletionStatus>({});
   filterStatus = signal<'all' | 'completed' | 'incomplete'>('all');
+  openAccordion = signal<string | null>(null);
   
   // Data
   totalTasks = SEO_CHECKLIST_DATA.length;
@@ -108,5 +109,9 @@ export class SeoAuditChecklistComponent implements OnInit {
 
   setFilter(status: 'all' | 'completed' | 'incomplete') {
     this.filterStatus.set(status);
+  }
+
+  toggleAccordion(category: string) {
+    this.openAccordion.update(current => (current === category ? null : category));
   }
 }
