@@ -1,4 +1,6 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { lastValueFrom } from 'rxjs';
 import { GoogleGenAI, GenerateContentResponse, Type, Chat } from '@google/genai';
 
 // IMPORTANT: This is a placeholder. In a real app, the API key should be handled securely and not be hardcoded or easily accessible on the client-side.
@@ -55,10 +57,28 @@ export interface ContentAnalysisReport {
   suggestions: string[];
 }
 
+export interface ComparativeAnalysisReport {
+  keyword: string;
+  userAnalysis: {
+    readabilityScore: number;
+    sentimentLabel: 'positive' | 'negative' | 'neutral';
+    keywordDensity: number;
+  };
+  competitorAnalysis: {
+    readabilityScore: number;
+    sentimentLabel: 'positive' | 'negative' | 'neutral';
+    keywordDensity: number;
+  };
+  comparativeSummary: string;
+  actionableSuggestions: string[];
+}
+
+
 @Injectable({
   providedIn: 'root',
 })
 export class GeminiService {
+  private http = inject(HttpClient);
   private genAI: GoogleGenAI;
   private chat: Chat | null = null;
   chatHistory = signal<ChatMessage[]>([]);
@@ -255,6 +275,109 @@ export class GeminiService {
       return null;
     }
   }
+
+  private async fetchAndParseUrl(url: string): Promise<string> {
+    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+    const htmlContent = await lastValueFrom(this.http.get(proxyUrl, { responseType: 'text' }));
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlContent, 'text/html');
+    
+    // Remove script, style, and common non-content elements
+    doc.querySelectorAll('script, style, nav, footer, header, aside').forEach(el => el.remove());
+    
+    // Get text content from the body, which is a good approximation of the main content
+    return doc.body.textContent || '';
+  }
+
+  async analyzeCompetitorContent(userContent: string, competitorUrl: string, keyword: string): Promise<ComparativeAnalysisReport | null> {
+    if (!API_KEY) {
+      console.error("API Key not configured.");
+      return Promise.resolve(null);
+    }
+
+    let competitorText: string;
+    try {
+        competitorText = await this.fetchAndParseUrl(competitorUrl);
+        if (!competitorText || competitorText.trim().length < 100) { // Basic check for some content
+            throw new Error('Could not extract meaningful content from the competitor URL.');
+        }
+    } catch (error) {
+        console.error('Error fetching or parsing competitor URL:', error);
+        throw new Error('Failed to fetch or parse the competitor URL. Please check the URL and try again.');
+    }
+    
+    const prompt = `
+      As an expert SEO content analyst, perform a comparative analysis between the user's content and a competitor's content from a given URL. The target keyword is "${keyword}".
+      The analysis must be returned as a JSON object matching the provided schema.
+
+      Analysis Criteria:
+      - For both the user's content and the competitor's content, analyze:
+        - readabilityScore: Flesch Reading Ease score (0-100).
+        - sentimentLabel: 'positive', 'negative', or 'neutral'.
+        - keywordDensity: The density of the target keyword as a percentage.
+      - comparativeSummary: A concise, one-paragraph summary comparing the two pieces of content. Highlight key differences in tone, depth, and keyword usage.
+      - actionableSuggestions: A list of 3-5 specific, actionable suggestions for the user to improve their content to better compete with the competitor's page.
+
+      User's Content:
+      ---
+      ${userContent}
+      ---
+
+      Competitor's Content (extracted from ${competitorUrl}):
+      ---
+      ${competitorText.substring(0, 15000)}
+      ---
+    `;
+
+    const schema = {
+      type: Type.OBJECT,
+      properties: {
+        keyword: { type: Type.STRING },
+        userAnalysis: {
+          type: Type.OBJECT,
+          properties: {
+            readabilityScore: { type: Type.NUMBER },
+            sentimentLabel: { type: Type.STRING },
+            keywordDensity: { type: Type.NUMBER, description: "Density as a percentage, e.g., 1.5 for 1.5%." }
+          },
+          propertyOrdering: ["readabilityScore", "sentimentLabel", "keywordDensity"]
+        },
+        competitorAnalysis: {
+          type: Type.OBJECT,
+          properties: {
+            readabilityScore: { type: Type.NUMBER },
+            sentimentLabel: { type: Type.STRING },
+            keywordDensity: { type: Type.NUMBER, description: "Density as a percentage, e.g., 1.5 for 1.5%." }
+          },
+          propertyOrdering: ["readabilityScore", "sentimentLabel", "keywordDensity"]
+        },
+        comparativeSummary: { type: Type.STRING },
+        actionableSuggestions: {
+          type: Type.ARRAY,
+          items: { type: Type.STRING }
+        }
+      },
+      propertyOrdering: ["keyword", "userAnalysis", "competitorAnalysis", "comparativeSummary", "actionableSuggestions"]
+    };
+
+    try {
+      const response: GenerateContentResponse = await this.genAI.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: prompt,
+        config: {
+          responseMimeType: 'application/json',
+          responseSchema: schema,
+          temperature: 0.3,
+        }
+      });
+      const jsonStr = response.text.trim();
+      return JSON.parse(jsonStr) as ComparativeAnalysisReport;
+    } catch (error) {
+      console.error('Error calling Gemini API for competitor content analysis:', error);
+      return null;
+    }
+  }
+
 
   startChat() {
     if (!API_KEY) {

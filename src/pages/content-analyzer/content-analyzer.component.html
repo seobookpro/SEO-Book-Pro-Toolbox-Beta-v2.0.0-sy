@@ -1,170 +1,238 @@
 <div class="space-y-6">
-  <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md text-center">
-    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">AI Content Analyzer</h1>
-    <p class="mt-2 text-lg text-gray-600 dark:text-gray-300">Analyze your on-page content for keyword density, readability, and sentiment.</p>
+  <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Content Analyzer</h1>
+    <p class="mt-2 text-lg text-gray-600 dark:text-gray-300">
+      Analyze your content for SEO best practices, readability, and keyword optimization. Compare it against a competitor to find an edge.
+    </p>
   </div>
 
-  @if (status() === 'idle') {
-    <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-      <div class="space-y-4">
-        <div>
-          <label for="content-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Content to Analyze</label>
-          <textarea 
-            id="content-input"
-            placeholder="Paste your article content here..."
-            [(ngModel)]="content"
-            rows="15"
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500"></textarea>
-          <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Word Count: {{ wordCount() }}</p>
-        </div>
-        <div>
-          <label for="keyword-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Target Keyword</label>
-          <input 
-            type="text" 
-            id="keyword-input"
-            placeholder="e.g., technical seo"
-            [(ngModel)]="targetKeyword"
-            (keydown.enter)="analyzeContent()"
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500"
-          />
-        </div>
-        <div class="flex justify-end">
-          <button 
-            (click)="analyzeContent()" 
-            [disabled]="content().trim() === '' || targetKeyword().trim() === ''"
-            class="bg-orange-600 text-white rounded-lg px-6 py-3 font-semibold hover:bg-orange-700 disabled:bg-orange-400 disabled:cursor-not-allowed transition-colors"
-          >
-            Analyze Content
-          </button>
-        </div>
-      </div>
-    </div>
-  }
-
-  @if (status() === 'loading') {
-    <div class="p-8 bg-white dark:bg-gray-800 rounded-lg shadow-md text-center">
-        <div class="flex justify-center items-center mb-4">
-             <svg class="animate-spin -ml-1 mr-3 h-10 w-10 text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-        </div>
-        <p class="text-lg text-gray-600 dark:text-gray-300 animate-pulse">AI is analyzing your content...</p>
-    </div>
-  }
-
-  @if (status() === 'error') {
-    <div class="p-6 bg-red-50 dark:bg-red-900/50 border-l-4 border-red-500 rounded-lg shadow-md">
-      <h3 class="text-xl font-bold text-red-800 dark:text-red-200">Analysis Failed</h3>
-      <p class="mt-2 text-red-700 dark:text-red-300">{{ errorMessage() }}</p>
-      <button (click)="reset()" class="mt-4 bg-orange-600 text-white rounded-lg px-6 py-2 font-semibold hover:bg-orange-700 transition-colors">
-        Try Again
-      </button>
-    </div>
-  }
-
-  @if (status() === 'success' && report()) {
-    @let r = report()!;
-    <div class="space-y-6">
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- Column 1: Settings -->
+    <div class="lg:col-span-3 space-y-6">
       <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-            <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">Content Analysis Report</h2>
-            <button (click)="reset()" class="bg-orange-600 text-white rounded-lg px-6 py-2 font-semibold hover:bg-orange-700 transition-colors">
-                Analyze New Content
-            </button>
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white border-b dark:border-gray-700 pb-3">Settings</h2>
+        <div class="mt-4 space-y-4">
+          <div class="flex items-center justify-between">
+            <label for="competitorToggle" class="font-medium text-gray-700 dark:text-gray-300 cursor-pointer">
+              Competitor Analysis
+            </label>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="competitorToggle" [checked]="showCompetitorAnalysis()" (change)="showCompetitorAnalysis.set($any($event.target).checked)" class="sr-only peer">
+              <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-500"></div>
+            </label>
+          </div>
+          @if (showCompetitorAnalysis()) {
+            <div>
+              <label for="competitor-url" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Competitor URL</label>
+              <input type="url" id="competitor-url" name="competitor-url"
+                class="mt-1 block w-full input-style"
+                placeholder="https://competitor.com/blog/article"
+                [value]="competitorUrl()"
+                (input)="competitorUrl.set($any($event.target).value)" />
+            </div>
+          }
         </div>
       </div>
+    </div>
 
-      <!-- Summary & Overall Score -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-1 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md flex flex-col items-center justify-center">
-          <h3 class="text-xl font-semibold mb-4">Overall Score</h3>
-          <div class="relative w-40 h-40">
-            <svg class="w-full h-full" viewBox="0 0 36 36" transform="rotate(-90)">
-              <path class="text-gray-200 dark:text-gray-700" stroke-width="3" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
-              <path [class]="getScoreColor(r.overallScore)"
-                    stroke-width="3"
-                    [attr.stroke-dasharray]="r.overallScore + ', 100'"
-                    stroke-linecap="round"
-                    fill="none"
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
-            </svg>
-            <div class="absolute inset-0 flex items-center justify-center">
-              <span class="text-4xl font-bold" [class]="getScoreColor(r.overallScore)">{{ r.overallScore }}</span>
-            </div>
+    <!-- Column 2: Content Input -->
+    <div class="lg:col-span-5">
+      <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md space-y-4">
+         <h2 class="text-xl font-semibold text-gray-900 dark:text-white border-b dark:border-gray-700 pb-3">Content to Analyze</h2>
+         <div>
+            <label for="content-keyword" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Target Keyword</label>
+            <input type="text" id="content-keyword" name="content-keyword"
+              class="mt-1 block w-full input-style"
+              placeholder="e.g., technical seo checklist"
+              [value]="contentKeyword()"
+              (input)="contentKeyword.set($any($event.target).value)" />
           </div>
+         <div>
+          <label for="content-text" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Your Content</label>
+          <textarea id="content-text" name="content-text" rows="15"
+            class="mt-1 block w-full input-style"
+            placeholder="Paste your article text here..."
+            [value]="contentText()"
+            (input)="contentText.set($any($event.target).value)">
+          </textarea>
         </div>
-        <div class="lg:col-span-2 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-          <h3 class="text-xl font-semibold mb-2">AI Summary</h3>
-          <p class="text-gray-600 dark:text-gray-300">{{ r.summary }}</p>
-        </div>
+      </div>
+    </div>
+
+    <!-- Column 3: Actions & Results -->
+    <div class="lg:col-span-4 space-y-6">
+      <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+         <h2 class="text-xl font-semibold text-gray-900 dark:text-white border-b dark:border-gray-700 pb-3">Analysis & Results</h2>
+         <div class="mt-4">
+            <button (click)="analyze()" [disabled]="!contentText() || !contentKeyword() || isLoading()"
+              class="w-full flex justify-center items-center px-4 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:bg-gray-400 dark:focus:ring-offset-gray-800 disabled:cursor-not-allowed">
+              @if(isLoading()) {
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Analyzing...</span>
+              } @else {
+                <span>Analyze</span>
+              }
+            </button>
+         </div>
       </div>
       
-      <!-- Readability & Sentiment -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-          <h3 class="text-xl font-semibold mb-4">Readability</h3>
-          <p class="text-5xl font-bold text-center" [class]="getScoreColor(r.readability.score)">{{ r.readability.score }}</p>
-          <p class="text-center font-semibold text-gray-700 dark:text-gray-300 mt-1">{{ r.readability.level }}</p>
-          <p class="text-sm text-center text-gray-500 dark:text-gray-400">(Flesch Reading Ease)</p>
-          <p class="mt-4 text-gray-600 dark:text-gray-300">{{ r.readability.interpretation }}</p>
-        </div>
-        <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-          <h3 class="text-xl font-semibold mb-4">Sentiment Analysis</h3>
-          <p class="text-5xl font-bold text-center capitalize" [class]="getSentimentColor(r.sentiment.label)">{{ r.sentiment.label }}</p>
-          <p class="text-center font-semibold text-gray-700 dark:text-gray-300 mt-1">Score: {{ r.sentiment.score.toFixed(2) }}</p>
-          <p class="text-sm text-center text-gray-500 dark:text-gray-400">(-1 Negative to +1 Positive)</p>
-          <p class="mt-4 text-gray-600 dark:text-gray-300">{{ r.sentiment.interpretation }}</p>
-        </div>
-      </div>
+      <!-- Results Section -->
+      @if (status() !== 'idle' && !isLoading()) {
+        <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md space-y-4 print-container">
+            @if (status() === 'error') {
+                <div class="bg-red-50 dark:bg-red-900/50 border-l-4 border-red-400 p-4 rounded-r-lg">
+                    <p class="text-sm text-red-700 dark:text-red-300">{{ errorMessage() }}</p>
+                </div>
+            } @else if (status() === 'success' && (contentReport() || comparativeReport())) {
+                <!-- Export Toolbar -->
+                <div class="border-b dark:border-gray-700 pb-3 no-print">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Export & Actions</h3>
+                    <div class="mt-2 grid grid-cols-3 sm:grid-cols-5 gap-2 text-center">
+                        <button (click)="printReport()" title="Print" class="action-btn"><span class="material-icons-outlined">print</span></button>
+                        <button (click)="downloadDoc()" title="Download DOC" class="action-btn"><span class="material-icons-outlined">description</span></button>
+                        <button (click)="downloadCsv()" title="Download CSV" class="action-btn"><span class="material-icons-outlined">download</span></button>
+                        <button (click)="downloadTxt()" title="Download TXT" class="action-btn"><span class="material-icons-outlined">article</span></button>
+                        <button (click)="copyReport()" title="Copy to Clipboard" class="action-btn"><span class="material-icons-outlined">content_copy</span></button>
+                    </div>
+                </div>
 
-      <!-- Keyword Analysis -->
-      <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-        <h3 class="text-xl font-semibold mb-4">Keyword Analysis</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <h4 class="font-bold mb-2">Target Keyword: "{{ r.keywordAnalysis.targetKeyword.keyword }}"</h4>
-            <div class="space-y-2">
-              <div class="flex justify-between"><span>Count:</span> <span class="font-semibold">{{ r.keywordAnalysis.targetKeyword.count }}</span></div>
-              <div class="flex justify-between"><span>Density:</span> <span class="font-semibold">{{ r.keywordAnalysis.targetKeyword.density.toFixed(2) }}%</span></div>
-              <div class="flex justify-between items-center">
-                <span>Prominence:</span> 
-                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full capitalize" [class]="getProminenceClass(r.keywordAnalysis.targetKeyword.prominence)">
-                    {{ r.keywordAnalysis.targetKeyword.prominence }}
-                </span>
-              </div>
-            </div>
-          </div>
-          <div>
-            <h4 class="font-bold mb-2">Other Relevant Keywords</h4>
-            @if (r.keywordAnalysis.otherKeywords.length > 0) {
-              <ul class="space-y-1">
-                @for(kw of r.keywordAnalysis.otherKeywords; track kw.keyword) {
-                  <li class="flex justify-between text-sm">
-                    <span class="text-gray-600 dark:text-gray-400">{{ kw.keyword }}</span>
-                    <span class="font-mono bg-gray-100 dark:bg-gray-700 px-2 rounded">{{ kw.count }}</span>
-                  </li>
-                }
-              </ul>
-            } @else {
-              <p class="text-sm text-gray-500 dark:text-gray-400">No other significant keywords were found.</p>
+                <!-- Report Content (for display, DOC export, and printing) -->
+                <div id="report-content-for-export" class="prose dark:prose-invert max-w-none">
+                    @if (contentReport(); as report) {
+                        <!-- Standard Report View -->
+                        @if (report) {
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between not-prose">
+                                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white m-0">Analysis Report</h2>
+                                    <div class="text-center">
+                                        <div class="text-sm font-medium text-gray-500 dark:text-gray-400">Overall Score</div>
+                                        <div class="text-4xl font-bold" [class]="getScoreColor(report.overallScore)">{{ report.overallScore }}</div>
+                                    </div>
+                                </div>
+                                <h3>Summary</h3>
+                                <p>{{ report.summary }}</p>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 not-prose">
+                                    <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                        <h4 class="font-semibold text-gray-900 dark:text-white">Readability</h4>
+                                        <p class="text-2xl font-bold" [class]="getScoreColor(report.readability.score)">{{ report.readability.score }} / 100</p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ report.readability.interpretation }}</p>
+                                    </div>
+                                    <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                        <h4 class="font-semibold text-gray-900 dark:text-white">Sentiment</h4>
+                                        <p class="text-2xl font-bold" [class]="getSentimentClass(report.sentiment.label)">{{ report.sentiment.label | titlecase }}</p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ report.sentiment.interpretation }}</p>
+                                    </div>
+                                </div>
+                                <h3>Keyword Analysis: "{{ report.keywordAnalysis.targetKeyword.keyword }}"</h3>
+                                <p>Count: {{ report.keywordAnalysis.targetKeyword.count }} | Density: {{ report.keywordAnalysis.targetKeyword.density.toFixed(2) }}% | Prominence: {{ report.keywordAnalysis.targetKeyword.prominence }}</p>
+                                <h4>Other Keywords:</h4>
+                                <ul>
+                                    @for (kw of report.keywordAnalysis.otherKeywords; track kw.keyword) {
+                                    <li>{{ kw.keyword }} ({{ kw.count }})</li>
+                                    }
+                                </ul>
+                                <h3>Suggestions</h3>
+                                <ul>
+                                    @for (suggestion of report.suggestions; track suggestion) {
+                                    <li>{{ suggestion }}</li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+                    } @else if (comparativeReport(); as report) {
+                        <!-- Comparative Report View -->
+                        @if (report) {
+                            <div class="space-y-4">
+                                <h2>Comparative Report for "{{ report.keyword }}"</h2>
+                                <div class="overflow-x-auto">
+                                <table class="min-w-full">
+                                    <thead>
+                                    <tr>
+                                        <th class="px-2 py-2 text-left text-xs font-medium">Metric</th>
+                                        <th class="px-2 py-2 text-left text-xs font-medium">Your Content</th>
+                                        <th class="px-2 py-2 text-left text-xs font-medium">Competitor</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td class="px-2 py-2 font-medium">Readability Score</td>
+                                        <td class="px-2 py-2">{{ report.userAnalysis.readabilityScore.toFixed(1) }}</td>
+                                        <td class="px-2 py-2">{{ report.competitorAnalysis.readabilityScore.toFixed(1) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-2 py-2 font-medium">Sentiment</td>
+                                        <td class="px-2 py-2">{{ report.userAnalysis.sentimentLabel | titlecase }}</td>
+                                        <td class="px-2 py-2">{{ report.competitorAnalysis.sentimentLabel | titlecase }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-2 py-2 font-medium">Keyword Density</td>
+                                        <td class="px-2 py-2">{{ report.userAnalysis.keywordDensity.toFixed(2) }}%</td>
+                                        <td class="px-2 py-2">{{ report.competitorAnalysis.keywordDensity.toFixed(2) }}%</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                </div>
+                                <h3>Comparative Summary</h3>
+                                <p>{{ report.comparativeSummary }}</p>
+                                <h3>Actionable Suggestions</h3>
+                                <ul>
+                                    @for(suggestion of report.actionableSuggestions; track suggestion) {
+                                    <li>{{ suggestion }}</li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+                    }
+                </div>
             }
-          </div>
         </div>
-      </div>
-
-      <!-- Suggestions -->
-      <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-        <h3 class="text-2xl font-bold mb-4">Actionable Suggestions</h3>
-        <ul class="space-y-3">
-          @for (suggestion of r.suggestions; track suggestion) {
-            <li class="flex items-start">
-              <span class="material-icons-outlined text-green-500 mt-1 mr-3">check_circle</span>
-              <p class="text-gray-700 dark:text-gray-300">{{ suggestion }}</p>
-            </li>
-          }
-        </ul>
-      </div>
+      }
     </div>
-  }
+  </div>
 </div>
+
+<!-- Print Styles -->
+<style>
+  .input-style {
+    @apply block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500 sm:text-sm;
+  }
+  .action-btn {
+    @apply p-2 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors;
+  }
+  @media print {
+    body > app-root > div > app-sidebar-left,
+    body > app-root > div > app-sidebar-right,
+    body > app-root > div > div > header,
+    body > app-root > div > div > app-breadcrumb,
+    body > app-root > div > div > footer,
+    body > app-root > div > app-audit-log-console,
+    body > app-root > div > a.chat-bubble,
+    .no-print {
+      display: none !important;
+    }
+    main > * {
+        display: none !important;
+    }
+    main > app-content-analyzer > .space-y-6 > .print-container {
+        display: block !important;
+    }
+    .print-container {
+        visibility: visible !important;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        box-shadow: none !important;
+        border: none !important;
+    }
+    .prose {
+        color: black !important;
+    }
+    h1, h2, h3, h4, p, li, td, th {
+        color: black !important;
+    }
+  }
+</style>

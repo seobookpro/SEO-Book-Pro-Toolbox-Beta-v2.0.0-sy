@@ -37,9 +37,9 @@
             <textarea placeholder="Description" [(ngModel)]="product().description" (ngModelChange)="updateField(product, 'description', $event)" rows="3" class="mt-1 block w-full input-style"></textarea>
             <input type="text" placeholder="SKU" [(ngModel)]="product().sku" (ngModelChange)="updateField(product, 'sku', $event)" class="mt-1 block w-full input-style">
             <input type="text" placeholder="Brand Name" [(ngModel)]="product().brandName" (ngModelChange)="updateField(product, 'brandName', $event)" class="mt-1 block w-full input-style">
-            <div class="flex gap-2">
-              <input type="text" placeholder="Currency (e.g., USD)" [(ngModel)]="product().currency" (ngModelChange)="updateField(product, 'currency', $event)" class="mt-1 block w-1/2 input-style">
-              <input type="number" placeholder="Price" [(ngModel)]="product().price" (ngModelChange)="updateField(product, 'price', $event)" class="mt-1 block w-1/2 input-style">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <input type="text" placeholder="Currency (e.g., USD)" [(ngModel)]="product().currency" (ngModelChange)="updateField(product, 'currency', $event)" class="mt-1 block w-full input-style">
+              <input type="number" placeholder="Price" [(ngModel)]="product().price" (ngModelChange)="updateField(product, 'price', $event)" class="mt-1 block w-full input-style">
             </div>
           </div>
         }
@@ -110,9 +110,9 @@
             <div class="space-y-4">
                 <h3 class="text-lg font-semibold border-b pb-2 dark:border-gray-600">Event Details</h3>
                 <input type="text" placeholder="Event Name" [(ngModel)]="event().name" (ngModelChange)="updateField(event, 'name', $event)" class="mt-1 block w-full input-style">
-                 <div class="flex gap-2">
-                    <input type="datetime-local" placeholder="Start Date" [(ngModel)]="event().startDate" (ngModelChange)="updateField(event, 'startDate', $event)" class="mt-1 block w-1/2 input-style">
-                    <input type="datetime-local" placeholder="End Date" [(ngModel)]="event().endDate" (ngModelChange)="updateField(event, 'endDate', $event)" class="mt-1 block w-1/2 input-style">
+                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <input type="datetime-local" placeholder="Start Date" [(ngModel)]="event().startDate" (ngModelChange)="updateField(event, 'startDate', $event)" class="mt-1 block w-full input-style">
+                    <input type="datetime-local" placeholder="End Date" [(ngModel)]="event().endDate" (ngModelChange)="updateField(event, 'endDate', $event)" class="mt-1 block w-full input-style">
                 </div>
                 <input type="text" placeholder="Location Name (e.g., Madison Square Garden)" [(ngModel)]="event().locationName" (ngModelChange)="updateField(event, 'locationName', $event)" class="mt-1 block w-full input-style">
                 <input type="text" placeholder="Location Address" [(ngModel)]="event().locationAddress" (ngModelChange)="updateField(event, 'locationAddress', $event)" class="mt-1 block w-full input-style">
@@ -134,9 +134,9 @@
                 <textarea placeholder="Description" [(ngModel)]="jobPosting().description" (ngModelChange)="updateField(jobPosting, 'description', $event)" rows="3" class="mt-1 block w-full input-style"></textarea>
                 <input type="text" placeholder="Hiring Organization Name" [(ngModel)]="jobPosting().hiringOrganizationName" (ngModelChange)="updateField(jobPosting, 'hiringOrganizationName', $event)" class="mt-1 block w-full input-style">
                 <input type="text" placeholder="Job Location (e.g., New York, NY)" [(ngModel)]="jobPosting().jobLocation" (ngModelChange)="updateField(jobPosting, 'jobLocation', $event)" class="mt-1 block w-full input-style">
-                 <div class="flex gap-2">
-                    <input type="number" placeholder="Base Salary (Annual)" [(ngModel)]="jobPosting().baseSalary" (ngModelChange)="updateField(jobPosting, 'baseSalary', $event)" class="mt-1 block w-1/2 input-style">
-                    <input type="text" placeholder="Currency (USD)" [(ngModel)]="jobPosting().currency" (ngModelChange)="updateField(jobPosting, 'currency', $event)" class="mt-1 block w-1/2 input-style">
+                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <input type="number" placeholder="Base Salary (Annual)" [(ngModel)]="jobPosting().baseSalary" (ngModelChange)="updateField(jobPosting, 'baseSalary', $event)" class="mt-1 block w-full input-style">
+                    <input type="text" placeholder="Currency (USD)" [(ngModel)]="jobPosting().currency" (ngModelChange)="updateField(jobPosting, 'currency', $event)" class="mt-1 block w-full input-style">
                 </div>
             </div>
         }
@@ -155,9 +155,9 @@
                 <input type="text" placeholder="Organization Name" [(ngModel)]="organization().name" (ngModelChange)="updateField(organization, 'name', $event)" class="mt-1 block w-full input-style">
                 <input type="url" placeholder="Website URL" [(ngModel)]="organization().url" (ngModelChange)="updateField(organization, 'url', $event)" class="mt-1 block w-full input-style">
                 <input type="url" placeholder="Logo URL" [(ngModel)]="organization().logo" (ngModelChange)="updateField(organization, 'logo', $event)" class="mt-1 block w-full input-style">
-                 <div class="flex gap-2">
-                    <input type="number" step="0.1" placeholder="Aggregate Rating (e.g., 4.5)" [(ngModel)]="organization().aggregateRating" (ngModelChange)="updateField(organization, 'aggregateRating', $event)" class="mt-1 block w-1/2 input-style">
-                    <input type="number" placeholder="Rating Count" [(ngModel)]="organization().ratingCount" (ngModelChange)="updateField(organization, 'ratingCount', $event)" class="mt-1 block w-1/2 input-style">
+                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <input type="number" step="0.1" placeholder="Aggregate Rating (e.g., 4.5)" [(ngModel)]="organization().aggregateRating" (ngModelChange)="updateField(organization, 'aggregateRating', $event)" class="mt-1 block w-full input-style">
+                    <input type="number" placeholder="Rating Count" [(ngModel)]="organization().ratingCount" (ngModelChange)="updateField(organization, 'ratingCount', $event)" class="mt-1 block w-full input-style">
                 </div>
             </div>
         }
@@ -181,9 +181,9 @@
                 <h3 class="text-lg font-semibold border-b pb-2 dark:border-gray-600">Recipe Details</h3>
                 <input type="text" placeholder="Recipe Name" [(ngModel)]="recipe().name" (ngModelChange)="updateField(recipe, 'name', $event)" class="mt-1 block w-full input-style">
                 <textarea placeholder="Description" [(ngModel)]="recipe().description" (ngModelChange)="updateField(recipe, 'description', $event)" rows="3" class="mt-1 block w-full input-style"></textarea>
-                <div class="flex gap-2">
-                    <input type="text" placeholder="Prep Time (e.g., PT30M)" [(ngModel)]="recipe().prepTime" (ngModelChange)="updateField(recipe, 'prepTime', $event)" class="mt-1 block w-1/2 input-style">
-                    <input type="text" placeholder="Cook Time (e.g., PT1H)" [(ngModel)]="recipe().cookTime" (ngModelChange)="updateField(recipe, 'cookTime', $event)" class="mt-1 block w-1/2 input-style">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <input type="text" placeholder="Prep Time (e.g., PT30M)" [(ngModel)]="recipe().prepTime" (ngModelChange)="updateField(recipe, 'prepTime', $event)" class="mt-1 block w-full input-style">
+                    <input type="text" placeholder="Cook Time (e.g., PT1H)" [(ngModel)]="recipe().cookTime" (ngModelChange)="updateField(recipe, 'cookTime', $event)" class="mt-1 block w-full input-style">
                 </div>
                 <textarea placeholder="Ingredients (one per line)" [(ngModel)]="recipe().recipeIngredient" (ngModelChange)="updateField(recipe, 'recipeIngredient', $event)" rows="5" class="mt-1 block w-full input-style"></textarea>
             </div>
@@ -193,10 +193,10 @@
                 <h3 class="text-lg font-semibold border-b pb-2 dark:border-gray-600">Review Details</h3>
                 <input type="text" placeholder="Item Reviewed (e.g., Product Name)" [(ngModel)]="review().itemName" (ngModelChange)="updateField(review, 'itemName', $event)" class="mt-1 block w-full input-style">
                 <input type="text" placeholder="Author's Name" [(ngModel)]="review().authorName" (ngModelChange)="updateField(review, 'authorName', $event)" class="mt-1 block w-full input-style">
-                <div class="flex gap-2">
-                    <input type="number" placeholder="Rating (e.g., 4.5)" [(ngModel)]="review().reviewRatingValue" (ngModelChange)="updateField(review, 'reviewRatingValue', $event)" class="mt-1 block w-1/3 input-style">
-                    <input type="number" placeholder="Best Rating (e.g., 5)" [(ngModel)]="review().bestRating" (ngModelChange)="updateField(review, 'bestRating', $event)" class="mt-1 block w-1/3 input-style">
-                    <input type="number" placeholder="Worst Rating (e.g., 1)" [(ngModel)]="review().worstRating" (ngModelChange)="updateField(review, 'worstRating', $event)" class="mt-1 block w-1/3 input-style">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <input type="number" placeholder="Rating (e.g., 4.5)" [(ngModel)]="review().reviewRatingValue" (ngModelChange)="updateField(review, 'reviewRatingValue', $event)" class="mt-1 block w-full input-style">
+                    <input type="number" placeholder="Best Rating (e.g., 5)" [(ngModel)]="review().bestRating" (ngModelChange)="updateField(review, 'bestRating', $event)" class="mt-1 block w-full input-style">
+                    <input type="number" placeholder="Worst Rating (e.g., 1)" [(ngModel)]="review().worstRating" (ngModelChange)="updateField(review, 'worstRating', $event)" class="mt-1 block w-full input-style">
                 </div>
             </div>
         }
@@ -206,9 +206,9 @@
                 <input type="text" placeholder="App Name" [(ngModel)]="softwareApplication().name" (ngModelChange)="updateField(softwareApplication, 'name', $event)" class="mt-1 block w-full input-style">
                 <input type="text" placeholder="Operating System (e.g., iOS, Android)" [(ngModel)]="softwareApplication().operatingSystem" (ngModelChange)="updateField(softwareApplication, 'operatingSystem', $event)" class="mt-1 block w-full input-style">
                 <input type="text" placeholder="Category (e.g., GameApplication)" [(ngModel)]="softwareApplication().applicationCategory" (ngModelChange)="updateField(softwareApplication, 'applicationCategory', $event)" class="mt-1 block w-full input-style">
-                 <div class="flex gap-2">
-                    <input type="number" step="0.1" placeholder="Rating Value (e.g., 4.5)" [(ngModel)]="softwareApplication().ratingValue" (ngModelChange)="updateField(softwareApplication, 'ratingValue', $event)" class="mt-1 block w-1/2 input-style">
-                    <input type="number" placeholder="Rating Count" [(ngModel)]="softwareApplication().ratingCount" (ngModelChange)="updateField(softwareApplication, 'ratingCount', $event)" class="mt-1 block w-1/2 input-style">
+                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <input type="number" step="0.1" placeholder="Rating Value (e.g., 4.5)" [(ngModel)]="softwareApplication().ratingValue" (ngModelChange)="updateField(softwareApplication, 'ratingValue', $event)" class="mt-1 block w-full input-style">
+                    <input type="number" placeholder="Rating Count" [(ngModel)]="softwareApplication().ratingCount" (ngModelChange)="updateField(softwareApplication, 'ratingCount', $event)" class="mt-1 block w-full input-style">
                 </div>
             </div>
         }

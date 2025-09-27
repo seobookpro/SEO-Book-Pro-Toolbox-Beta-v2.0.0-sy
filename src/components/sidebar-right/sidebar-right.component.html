@@ -19,21 +19,18 @@
       <div>
         <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Theme</label>
         <div class="mt-1 flex rounded-lg shadow-sm">
-            <button (click)="setTheme('light')" 
-                    [class]="theme() === 'light' ? 'bg-orange-500 text-white ring-orange-500' : 'bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 ring-gray-300 dark:ring-gray-600'"
-                    class="relative inline-flex items-center space-x-2 rounded-l-md px-3 py-2 text-sm font-medium ring-1 ring-inset focus:z-10 transition">
+            <button (click)="setTheme('light')"
+                    [class]="'relative inline-flex items-center space-x-2 rounded-l-md px-3 py-2 text-sm font-medium ring-1 ring-inset focus:z-10 transition ' + (theme() === 'light' ? 'bg-orange-500 text-white ring-orange-500' : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600')">
                 <span class="material-icons-outlined text-base leading-none">light_mode</span>
                 <span>Light</span>
             </button>
             <button (click)="setTheme('dark')"
-                    [class]="theme() === 'dark' ? 'bg-orange-500 text-white ring-orange-500' : 'bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 ring-gray-300 dark:ring-gray-600'"
-                    class="relative -ml-px inline-flex items-center space-x-2 px-3 py-2 text-sm font-medium ring-1 ring-inset focus:z-10 transition">
+                    [class]="'relative -ml-px inline-flex items-center space-x-2 px-3 py-2 text-sm font-medium ring-1 ring-inset focus:z-10 transition ' + (theme() === 'dark' ? 'bg-orange-500 text-white ring-orange-500' : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600')">
                 <span class="material-icons-outlined text-base leading-none">dark_mode</span>
                 <span>Dark</span>
             </button>
             <button (click)="setTheme('system')"
-                    [class]="theme() === 'system' ? 'bg-orange-500 text-white ring-orange-500' : 'bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 ring-gray-300 dark:ring-gray-600'"
-                    class="relative -ml-px inline-flex items-center space-x-2 rounded-r-md px-3 py-2 text-sm font-medium ring-1 ring-inset focus:z-10 transition">
+                    [class]="'relative -ml-px inline-flex items-center space-x-2 rounded-r-md px-3 py-2 text-sm font-medium ring-1 ring-inset focus:z-10 transition ' + (theme() === 'system' ? 'bg-orange-500 text-white ring-orange-500' : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600')">
                 <span class="material-icons-outlined text-base leading-none">desktop_windows</span>
                 <span>System</span>
             </button>
