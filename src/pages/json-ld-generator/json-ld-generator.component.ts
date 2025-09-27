@@ -1,5 +1,5 @@
-import { Component, ChangeDetectionStrategy, signal, computed, WritableSignal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ChangeDetectionStrategy, signal, computed, WritableSignal, inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 type SchemaType = 'Article' | 'BreadcrumbList' | 'Course' | 'Dataset' | 'DiscussionForumPosting' | 'Event' | 'FAQPage' | 'ImageObject' | 'JobPosting' | 'LocalBusiness' | 'Movie' | 'Organization' | 'Product' | 'ProfilePage' | 'QAPage' | 'Recipe' | 'Review' | 'SoftwareApplication' | 'VacationRental' | 'VideoObject';
@@ -37,6 +37,9 @@ export class JsonLdGeneratorComponent {
   selectedSchema = signal<SchemaType>('Article');
   copyButtonText = signal('Copy to Clipboard');
   
+  private platformId = inject(PLATFORM_ID);
+  private pageUrl = '';
+
   // Form data signals
   article = signal<Article>({ headline: '', image: '', datePublished: '', authorName: '', isPaywalled: false, speakableCssSelector: '' });
   product = signal<Product>({ name: '', image: '', description: '', sku: '', brandName: '', currency: 'USD', price: '' });
@@ -61,6 +64,12 @@ export class JsonLdGeneratorComponent {
 
 
   schemaTypes: SchemaType[] = ['Article', 'BreadcrumbList', 'Course', 'Dataset', 'DiscussionForumPosting', 'Event', 'FAQPage', 'ImageObject', 'JobPosting', 'LocalBusiness', 'Movie', 'Organization', 'Product', 'ProfilePage', 'QAPage', 'Recipe', 'Review', 'SoftwareApplication', 'VacationRental', 'VideoObject'];
+
+  constructor() {
+    if (isPlatformBrowser(this.platformId)) {
+      this.pageUrl = window.location.href;
+    }
+  }
 
   generatedJsonLd = computed(() => {
     const schemaType = this.selectedSchema();
@@ -93,7 +102,7 @@ export class JsonLdGeneratorComponent {
           ...data,
           name: productData.name, image: productData.image, description: productData.description, sku: productData.sku,
           brand: { "@type": "Brand", name: productData.brandName },
-          offers: { "@type": "Offer", url: window.location.href, priceCurrency: productData.currency, price: productData.price, availability: "https://schema.org/InStock" }
+          offers: { "@type": "Offer", url: this.pageUrl, priceCurrency: productData.currency, price: productData.price, availability: "https://schema.org/InStock" }
         };
         break;
       case 'FAQPage':
@@ -183,7 +192,6 @@ export class JsonLdGeneratorComponent {
     return JSON.stringify(data, null, 2);
   });
   
-  // FIX: Changed `signal.WritableSignal` to `WritableSignal` and imported it from '@angular/core'.
   updateField<T>(signal: WritableSignal<T>, field: keyof T, value: any) {
     signal.update(s => ({ ...s, [field]: value }));
   }

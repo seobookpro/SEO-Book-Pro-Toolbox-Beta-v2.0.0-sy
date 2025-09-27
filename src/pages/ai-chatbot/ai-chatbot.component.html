@@ -1,10 +1,16 @@
 <div class="h-full flex flex-col max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md">
-  <h1 class="text-2xl font-bold text-gray-900 dark:text-white p-4 border-b dark:border-gray-700">
-    AI SEO Assistant
-  </h1>
+  <div class="flex justify-between items-center p-4 border-b dark:border-gray-700">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+      AI SEO Assistant
+    </h1>
+    <button (click)="startNewChat()" class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+      <span class="material-icons-outlined text-base">add</span>
+      <span>New Chat</span>
+    </button>
+  </div>
   
   <div #chatContainer class="flex-1 p-4 space-y-4 overflow-y-auto">
-    @for (message of messages(); track message) {
+    @for (message of messages(); track $index) {
       <div class="flex" [class.justify-end]="message.role === 'user'" [class.justify-start]="message.role === 'model'">
         <div 
           class="max-w-lg lg:max-w-xl p-3 rounded-lg"

@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, signal, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, computed, inject, Injector, afterNextRender } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SEO_GLOSSARY_DATA } from '../../data/seo-glossary.data';
@@ -14,6 +14,7 @@ export class SeoGlossaryComponent {
   private fullGlossary = signal(SEO_GLOSSARY_DATA);
   openAccordion = signal<string | null>(null);
   searchTerm = signal('');
+  private injector = inject(Injector);
 
   private slugToLetterMap = new Map<string, string>();
 
@@ -131,10 +132,10 @@ export class SeoGlossaryComponent {
     if (letter) {
       this.openAccordion.set(letter);
       // Wait for the accordion to open in the DOM before scrolling
-      setTimeout(() => {
+      afterNextRender(() => {
         const element = document.getElementById(`term-${slug}`);
         element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 100);
+      }, { injector: this.injector });
     }
   }
 

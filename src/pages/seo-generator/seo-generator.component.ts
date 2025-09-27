@@ -1,5 +1,5 @@
-import { Component, ChangeDetectionStrategy, signal, computed, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ChangeDetectionStrategy, signal, computed, inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
@@ -12,6 +12,8 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class SeoGeneratorComponent implements OnInit {
   private route = inject(ActivatedRoute);
+  private platformId = inject(PLATFORM_ID);
+  private baseUrl = '';
 
   copyButtonText = signal('Copy Tags');
   shareCopyText = signal('Share Configuration');
@@ -26,6 +28,12 @@ export class SeoGeneratorComponent implements OnInit {
   twitterSite = signal('@yourhandle');
   canonicalUrl = signal('https://example.com/your-page');
   robotsContent = signal('index, follow');
+
+  constructor() {
+    if (isPlatformBrowser(this.platformId)) {
+        this.baseUrl = window.location.href.split('?')[0];
+    }
+  }
 
   ngOnInit(): void {
     const params = this.route.snapshot.queryParams;
@@ -46,14 +54,14 @@ export class SeoGeneratorComponent implements OnInit {
   }
 
   private shareableUrl = computed(() => {
-    const baseUrl = window.location.href.split('?')[0];
+    if (!this.baseUrl) return '';
     const params = new URLSearchParams({
       title: this.title(),
       description: this.description(),
       canonicalUrl: this.canonicalUrl(),
       ogImage: this.ogImage(),
     });
-    return `${baseUrl}?${params.toString()}`;
+    return `${this.baseUrl}?${params.toString()}`;
   });
 
   copyShareUrl() {

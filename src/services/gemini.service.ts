@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { GoogleGenAI, GenerateContentResponse, Type, Chat } from '@google/genai';
 
 // IMPORTANT: This is a placeholder. In a real app, the API key should be handled securely and not be hardcoded or easily accessible on the client-side.
@@ -61,6 +61,7 @@ export interface ContentAnalysisReport {
 export class GeminiService {
   private genAI: GoogleGenAI;
   private chat: Chat | null = null;
+  chatHistory = signal<ChatMessage[]>([]);
   private readonly systemInstruction = `You are "SEO-Bot", a friendly and expert AI assistant for the "SEO Audit Pro" application. 
   Your primary goal is to help users with their technical SEO questions. 
   You can answer general SEO questions, suggest appropriate JSON-LD schema types for different content, recommend technical SEO fixes, and help users understand SEO concepts. 
@@ -260,34 +261,53 @@ export class GeminiService {
       console.error("API Key not configured.");
       return;
     }
-    this.chat = this.genAI.chats.create({
-        model: 'gemini-2.5-flash',
-        config: {
-            systemInstruction: this.systemInstruction,
-            temperature: 0.7,
-        }
-    });
+    // Only initialize if chat doesn't exist to maintain context across navigation
+    if (!this.chat) {
+        this.chat = this.genAI.chats.create({
+            model: 'gemini-2.5-flash',
+            config: {
+                systemInstruction: this.systemInstruction,
+                temperature: 0.7,
+            }
+        });
+        // Initialize history with a welcome message
+        this.chatHistory.set([
+            { role: 'model', text: 'Hello! I am SEO-Bot. How can I help you with your technical SEO today?' }
+        ]);
+    }
+  }
+
+  startNewChat() {
+    this.chat = null; // Discard old chat session with its history
+    this.chatHistory.set([]); // Clear history from the UI
+    this.startChat(); // Create new session and add welcome message
   }
   
-  async sendChatMessage(message: string): Promise<string> {
+  async sendChatMessage(message: string): Promise<void> {
     if (!API_KEY) {
-      return Promise.resolve("API Key not configured. Please contact support.");
+      this.chatHistory.update(m => [...m, {role: 'model', text: "API Key not configured. Please contact support."}]);
+      return;
     }
     
     if (!this.chat) {
         this.startChat();
     }
 
+    // Add user message to history
+    this.chatHistory.update(m => [...m, { role: 'user', text: message }]);
+
     try {
         if (this.chat) {
             const response: GenerateContentResponse = await this.chat.sendMessage({ message });
-            return response.text;
+            // Add model response to history
+            this.chatHistory.update(m => [...m, { role: 'model', text: response.text }]);
+        } else {
+             // This case should ideally not be hit.
+            this.chatHistory.update(m => [...m, { role: 'model', text: 'Chat is not initialized. Please start a new chat.'}]);
         }
-        // This case should ideally not be hit if startChat is called correctly.
-        return 'Chat is not initialized. Please start a new chat.'; 
     } catch (error) {
       console.error('Error calling Gemini Chat API:', error);
-      return 'Sorry, I encountered an error while processing your request. Please try again later.';
+      this.chatHistory.update(m => [...m, { role: 'model', text: 'Sorry, I encountered an error while processing your request. Please try again later.'}]);
     }
   }
 }

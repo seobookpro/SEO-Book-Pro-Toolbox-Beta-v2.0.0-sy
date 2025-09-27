@@ -1,7 +1,7 @@
-import { Component, ChangeDetectionStrategy, signal, inject, ElementRef, viewChild, afterNextRender, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, inject, ElementRef, viewChild, afterNextRender, OnInit, effect, Injector } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { GeminiService, ChatMessage } from '../../services/gemini.service';
+import { GeminiService } from '../../services/gemini.service';
 
 @Component({
   selector: 'app-ai-chatbot',
@@ -12,18 +12,22 @@ import { GeminiService, ChatMessage } from '../../services/gemini.service';
 })
 export class AiChatbotComponent implements OnInit {
   private geminiService = inject(GeminiService);
+  private injector = inject(Injector);
   
-  messages = signal<ChatMessage[]>([
-    { role: 'model', text: 'Hello! I am SEO-Bot. How can I help you with your technical SEO today?' }
-  ]);
+  // Use history signal from the service
+  messages = this.geminiService.chatHistory;
   userInput = signal('');
   isLoading = signal(false);
 
   chatContainer = viewChild<ElementRef<HTMLDivElement>>('chatContainer');
   
   constructor() {
-    afterNextRender(() => {
-        this.scrollToBottom();
+    // Scroll to bottom whenever messages change
+    effect(() => {
+        this.messages(); // depend on messages signal
+        afterNextRender(() => {
+            this.scrollToBottom();
+        }, { injector: this.injector });
     });
   }
 
@@ -36,17 +40,17 @@ export class AiChatbotComponent implements OnInit {
     if (!prompt || this.isLoading()) {
       return;
     }
-
-    this.messages.update(m => [...m, { role: 'user', text: prompt }]);
+    
     this.userInput.set('');
     this.isLoading.set(true);
-    this.scrollToBottom();
 
-    const responseText = await this.geminiService.sendChatMessage(prompt);
+    await this.geminiService.sendChatMessage(prompt);
     
-    this.messages.update(m => [...m, { role: 'model', text: responseText }]);
     this.isLoading.set(false);
-    this.scrollToBottom();
+  }
+
+  startNewChat(): void {
+    this.geminiService.startNewChat();
   }
   
   private scrollToBottom(): void {
