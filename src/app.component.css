@@ -51,3 +51,9 @@
 .chat-bubble:hover {
   transform: scale(1.1);
 }
+
+
+/* Footer Styles */
+.footer-logo {
+  font-weight: bold;
+}
