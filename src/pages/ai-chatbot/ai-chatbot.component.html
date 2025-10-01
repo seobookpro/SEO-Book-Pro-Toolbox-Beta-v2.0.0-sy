@@ -11,20 +11,31 @@
   
   <div #chatContainer class="flex-1 p-4 space-y-4 overflow-y-auto">
     @for (message of messages(); track $index) {
-      <div class="flex" [class.justify-end]="message.role === 'user'" [class.justify-start]="message.role === 'model'">
+      <div class="flex" [class.justify-end]="message.role === 'user'" [class.justify-start]="message.role !== 'user'">
         <div 
           class="max-w-lg lg:max-w-xl p-3 rounded-lg"
           [class.bg-orange-500]="message.role === 'user'"
           [class.text-white]="message.role === 'user'"
+          [class.bg-red-100]="message.role === 'error'"
+          [class.dark:bg-red-900/50]="message.role === 'error'"
+          [class.text-red-800]="message.role === 'error'"
+          [class.dark:text-red-200]="message.role === 'error'"
           [class.bg-gray-200]="message.role === 'model'"
           [class.dark:bg-gray-700]="message.role === 'model'"
           [class.dark:text-gray-200]="message.role === 'model'"
         >
-          <p class="text-sm whitespace-pre-wrap">{{ message.text }}</p>
+          @if (message.role === 'user') {
+            <p class="text-sm whitespace-pre-wrap">{{ message.content }}</p>
+          } @else {
+            <div 
+              class="prose prose-sm dark:prose-invert max-w-none prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-pre:my-2"
+              [innerHTML]="parseMarkdown(message.content)">
+            </div>
+          }
         </div>
       </div>
     }
-    @if (isLoading()) {
+    @if (isLoading() && messages()[messages().length - 1]?.role !== 'model') {
       <div class="flex justify-start">
         <div class="max-w-lg lg:max-w-xl p-3 rounded-lg bg-gray-200 dark:bg-gray-700 dark:text-gray-200">
           <div class="flex items-center space-x-2">
@@ -37,20 +48,33 @@
     }
   </div>
 
+  @if (messages().length <= 1 && !isLoading()) {
+    <div class="px-4 pb-2 grid grid-cols-1 md:grid-cols-2 gap-2 border-t dark:border-gray-700 pt-4">
+      @for(prompt of suggestedPrompts; track prompt.title) {
+        <button (click)="useSuggestedPrompt(prompt.prompt)" class="p-3 bg-gray-100 dark:bg-gray-700/50 rounded-lg text-left hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+          <p class="font-semibold text-sm text-gray-800 dark:text-gray-200">{{ prompt.title }}</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ prompt.prompt }}</p>
+        </button>
+      }
+    </div>
+  }
+
   <div class="p-4 border-t dark:border-gray-700">
-    <div class="flex items-center space-x-2">
-      <input 
-        type="text" 
-        placeholder="Ask an SEO question..."
-        [(ngModel)]="userInput"
-        (keydown.enter)="sendMessage()"
+    <div class="flex items-start space-x-2">
+      <textarea 
+        #inputArea
+        placeholder="Ask an SEO question or paste code to analyze..."
+        [value]="userInput()"
+        (input)="userInput.set($any($event.target).value); inputArea.style.height = 'auto'; inputArea.style.height = (inputArea.scrollHeight) + 'px'"
+        (keydown.enter)="!$event.shiftKey && sendMessage(); $event.shiftKey ? null : $event.preventDefault()"
         [disabled]="isLoading()"
-        class="flex-1 px-4 py-2 rounded-full border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
-      />
+        class="flex-1 px-4 py-2 rounded-2xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition resize-none"
+        rows="1"
+      ></textarea>
       <button 
         (click)="sendMessage()" 
         [disabled]="isLoading() || userInput().trim() === ''"
-        class="bg-orange-600 text-white rounded-full p-3 hover:bg-orange-700 disabled:bg-orange-400 disabled:cursor-not-allowed transition-colors"
+        class="bg-orange-600 text-white rounded-full p-3 hover:bg-orange-700 disabled:bg-orange-400 disabled:cursor-not-allowed transition-colors self-end flex-shrink-0"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
