@@ -1,41 +1,140 @@
-<div class="h-full flex flex-col max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md">
-  <div class="flex justify-between items-center p-4 border-b dark:border-gray-700">
-    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-      AI SEO Assistant
-    </h1>
-    <button (click)="startNewChat()" class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-      <span class="material-icons-outlined text-base">add</span>
-      <span>New Chat</span>
-    </button>
-  </div>
-  
-  <div #chatContainer class="flex-1 p-4 space-y-4 overflow-y-auto">
-    @for (message of messages(); track $index) {
-      <div class="flex" [class.justify-end]="message.role === 'user'" [class.justify-start]="message.role !== 'user'">
-        <div 
-          class="max-w-lg lg:max-w-xl p-3 rounded-lg"
-          [class.bg-orange-500]="message.role === 'user'"
-          [class.text-white]="message.role === 'user'"
-          [class.bg-red-100]="message.role === 'error'"
-          [class.dark:bg-red-900/50]="message.role === 'error'"
-          [class.text-red-800]="message.role === 'error'"
-          [class.dark:text-red-200]="message.role === 'error'"
-          [class.bg-gray-200]="message.role === 'model'"
-          [class.dark:bg-gray-700]="message.role === 'model'"
-          [class.dark:text-gray-200]="message.role === 'model'"
-        >
-          @if (message.role === 'user') {
-            <p class="text-sm whitespace-pre-wrap">{{ message.content }}</p>
-          } @else {
-            <div 
-              class="prose prose-sm dark:prose-invert max-w-none prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-pre:my-2"
-              [innerHTML]="parseMarkdown(message.content)">
+<div class="h-full flex flex-col lg:flex-row gap-4">
+  <!-- Left Column: Controls -->
+  <div class="w-full lg:w-[400px] flex-shrink-0 flex flex-col gap-4 lg:overflow-y-auto lg:pr-2">
+    <!-- Prompt Generator -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md flex flex-col">
+      <div class="p-4 border-b dark:border-gray-700">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Prompt Generator</h2>
+      </div>
+      <div class="p-4 flex-grow overflow-y-auto">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Target Domain</label>
+            <select class="w-full text-sm px-2 py-2 rounded-md border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700" [ngModel]="selectedDomain()" (ngModelChange)="selectedDomain.set($event)">
+              @if(domains().length === 0) {
+              <option value="" disabled>Add a domain first</option>
+              }
+              @for(domain of domains(); track domain) {
+              <option [value]="domain">{{ domain }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="flex items-center justify-between pt-2">
+            <h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Checklist Items</h3>
+            <div class="flex gap-2">
+              <button (click)="selectAllChecklistItems()" class="text-xs font-medium text-orange-600 dark:text-orange-400 hover:underline">Select All</button>
+              <button (click)="clearChecklistSelection()" class="text-xs font-medium text-gray-500 hover:underline">Clear</button>
             </div>
+          </div>
+
+          <div class="space-y-2">
+            @for (category of checklistCategories(); track category) {
+            <div class="border dark:border-gray-700 rounded-md overflow-hidden text-sm">
+              <div class="w-full flex justify-between items-center text-left p-2 bg-gray-50 dark:bg-gray-700/50">
+                <h3 class="font-semibold text-gray-700 dark:text-gray-300">
+                  {{ category }}
+                  @if((selectedItemsPerCategory()[category] || 0) > 0) {
+                    <span class="text-orange-500 font-bold">({{ selectedItemsPerCategory()[category] }})</span>
+                  }
+                </h3>
+              </div>
+              <div class="p-2 border-t dark:border-gray-700 max-h-48 overflow-y-auto">
+                <div class="space-y-1">
+                  @for(check of groupedChecklist()[category]; track check.id) {
+                  <label class="flex items-center space-x-2 cursor-pointer p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700/50">
+                    <input type="checkbox" [checked]="selectedChecklistItems().has(check.id)" (change)="toggleChecklistItem(check.id)" class="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-orange-600 focus:ring-orange-500" />
+                    <span class="text-sm text-gray-600 dark:text-gray-400">{{ check.task }}</span>
+                  </label>
+                  }
+                </div>
+              </div>
+            </div>
+            }
+          </div>
+        </div>
+      </div>
+      <div class="p-4 border-t dark:border-gray-700">
+        <button (click)="generateAndSendPrompt()" class="w-full flex items-center justify-center gap-2 px-3 py-2 font-semibold text-white bg-gradient-to-r from-gray-900 to-orange-600 rounded-md hover:opacity-90 transition-opacity">
+          <span class="material-icons-outlined">auto_awesome</span>
+          <span>Generate & Send Prompt</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Workspace -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md flex flex-col">
+      <div class="p-4 border-b dark:border-gray-700">
+        <button (click)="startNewChat()" class="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-white bg-orange-600 rounded-md hover:bg-orange-700 transition-colors">
+          <span class="material-icons-outlined text-base">add</span>
+          <span>New Chat</span>
+        </button>
+      </div>
+      <!-- Domain Management -->
+      <div class="p-4 border-b dark:border-gray-700">
+        <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Domains</h2>
+        <div class="flex gap-1 mb-2">
+          <input type="text" placeholder="yourdomain.com" class="w-full text-sm px-2 py-1 rounded border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700" [value]="newDomainInput()" (input)="newDomainInput.set($any($event.target).value)" (keydown.enter)="addDomain()">
+          <button (click)="addDomain()" class="px-2 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500">
+            <span class="material-icons-outlined text-base">add</span>
+          </button>
+        </div>
+        @if (domains().length > 0) {
+        <div class="max-h-24 overflow-y-auto space-y-1">
+          @for(domain of domains(); track domain) {
+          <div class="group flex items-center justify-between p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700/50">
+            <span class="text-sm text-gray-700 dark:text-gray-300 truncate">{{ domain }}</span>
+            <button (click)="removeDomain(domain, $event)" class="opacity-0 group-hover:opacity-100 text-red-500">
+              <span class="material-icons-outlined text-sm">delete</span>
+            </button>
+          </div>
+          }
+        </div>
+        }
+      </div>
+      <!-- Chat History -->
+      <div class="p-4 flex-grow overflow-y-auto">
+        <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">History</h2>
+        <div class="space-y-1">
+          @for(chat of savedChats(); track chat.id) {
+          <button (click)="loadChat(chat.id)" class="w-full text-left p-2 rounded-md group flex justify-between items-center" [class.bg-orange-100]="currentChatId() === chat.id" [class.dark:bg-orange-900/50]="currentChatId() === chat.id" [class.hover:bg-gray-100]="currentChatId() !== chat.id" [class.dark:hover:bg-gray-700/50]="currentChatId() !== chat.id">
+            <span class="text-sm text-gray-800 dark:text-gray-200 truncate pr-2">{{ chat.title }}</span>
+            <span (click)="deleteChat(chat.id, $event)" class="opacity-0 group-hover:opacity-100 text-red-500">
+              <span class="material-icons-outlined text-sm">delete</span>
+            </span>
+          </button>
+          }
+          @if(savedChats().length === 0) {
+          <p class="text-xs text-center text-gray-400 dark:text-gray-500 py-4">No saved chats yet.</p>
           }
         </div>
       </div>
-    }
-    @if (isLoading() && messages()[messages().length - 1]?.role !== 'model') {
+    </div>
+  </div>
+
+  <!-- Right Column: Chat Interface -->
+  <div class="flex-1 flex flex-col bg-white dark:bg-gray-800 rounded-lg shadow-md h-[80vh] lg:h-full">
+    <div class="flex justify-between items-center p-4 border-b dark:border-gray-700">
+      <input type="text" class="text-xl font-bold text-gray-900 dark:text-white bg-transparent border-none focus:ring-0 p-0 w-full" placeholder="Chat Title" [value]="currentChatTitle()" (change)="currentChatTitle.set($any($event.target).value); saveChat()">
+      <button (click)="saveChat()" [disabled]="messages().length <= 1" title="Save Chat" class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors disabled:opacity-50">
+        <span class="material-icons-outlined text-base">save</span>
+      </button>
+    </div>
+
+    <div #chatContainer class="flex-1 p-4 space-y-4 overflow-y-auto">
+      @for (message of messages(); track $index) {
+      <div class="flex" [class.justify-end]="message.role === 'user'" [class.justify-start]="message.role !== 'user'">
+        <div class="max-w-lg lg:max-w-xl p-3 rounded-lg" [class.bg-orange-500]="message.role === 'user'" [class.text-white]="message.role === 'user'" [class.bg-red-100]="message.role === 'error'" [class.dark:bg-red-900/50]="message.role === 'error'" [class.text-red-800]="message.role === 'error'" [class.dark:text-red-200]="message.role === 'error'" [class.bg-gray-200]="message.role === 'model'" [class.dark:bg-gray-700]="message.role === 'model'" [class.dark:text-gray-200]="message.role === 'model'">
+          @if (message.role === 'user') {
+          <p class="text-sm whitespace-pre-wrap">{{ message.content }}</p>
+          } @else {
+          <div class="prose prose-sm dark:prose-invert max-w-none prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-pre:my-2" [innerHTML]="parseMarkdown(message.content)">
+          </div>
+          }
+        </div>
+      </div>
+      }
+      @if (isLoading()) {
       <div class="flex justify-start">
         <div class="max-w-lg lg:max-w-xl p-3 rounded-lg bg-gray-200 dark:bg-gray-700 dark:text-gray-200">
           <div class="flex items-center space-x-2">
@@ -45,41 +144,18 @@
           </div>
         </div>
       </div>
-    }
-  </div>
-
-  @if (messages().length <= 1 && !isLoading()) {
-    <div class="px-4 pb-2 grid grid-cols-1 md:grid-cols-2 gap-2 border-t dark:border-gray-700 pt-4">
-      @for(prompt of suggestedPrompts; track prompt.title) {
-        <button (click)="useSuggestedPrompt(prompt.prompt)" class="p-3 bg-gray-100 dark:bg-gray-700/50 rounded-lg text-left hover:bg-gray-200 dark:hover:bg-gray-700 transition">
-          <p class="font-semibold text-sm text-gray-800 dark:text-gray-200">{{ prompt.title }}</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ prompt.prompt }}</p>
-        </button>
       }
     </div>
-  }
 
-  <div class="p-4 border-t dark:border-gray-700">
-    <div class="flex items-start space-x-2">
-      <textarea 
-        #inputArea
-        placeholder="Ask an SEO question or paste code to analyze..."
-        [value]="userInput()"
-        (input)="userInput.set($any($event.target).value); inputArea.style.height = 'auto'; inputArea.style.height = (inputArea.scrollHeight) + 'px'"
-        (keydown.enter)="!$event.shiftKey && sendMessage(); $event.shiftKey ? null : $event.preventDefault()"
-        [disabled]="isLoading()"
-        class="flex-1 px-4 py-2 rounded-2xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition resize-none"
-        rows="1"
-      ></textarea>
-      <button 
-        (click)="sendMessage()" 
-        [disabled]="isLoading() || userInput().trim() === ''"
-        class="bg-orange-600 text-white rounded-full p-3 hover:bg-orange-700 disabled:bg-orange-400 disabled:cursor-not-allowed transition-colors self-end flex-shrink-0"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-        </svg>
-      </button>
+    <div class="p-4 border-t dark:border-gray-700">
+      <div class="flex items-end space-x-2">
+        <button (click)="sendMessage()" [disabled]="isLoading() || userInput().trim() === ''" class="bg-orange-600 text-white rounded-full p-3 hover:bg-orange-700 disabled:bg-orange-400 disabled:cursor-not-allowed transition-colors flex-shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+          </svg>
+        </button>
+        <textarea #inputArea placeholder="Ask an SEO question..." [value]="userInput()" (input)="userInput.set($any($event.target).value); inputArea.style.height = 'auto'; inputArea.style.height = (inputArea.scrollHeight) + 'px'" (keydown.enter)="!$event.shiftKey && sendMessage(); $event.shiftKey ? null : $event.preventDefault()" [disabled]="isLoading()" class="flex-1 px-4 py-2 rounded-2xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition resize-none" rows="1"></textarea>
+      </div>
     </div>
   </div>
 </div>

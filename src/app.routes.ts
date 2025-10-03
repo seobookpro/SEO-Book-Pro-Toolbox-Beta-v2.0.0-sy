@@ -38,6 +38,11 @@ export const APP_ROUTES: Routes = [
         data: { breadcrumb: 'SEO Glossary' }
     },
     {
+        path: 'podcasts',
+        loadComponent: () => import('./pages/podcasts/podcasts.component').then(m => m.PodcastsComponent),
+        data: { breadcrumb: 'Podcasts' }
+    },
+    {
         path: 'ai-chatbot',
         loadComponent: () => import('./pages/ai-chatbot/ai-chatbot.component').then(m => m.AiChatbotComponent),
         data: { breadcrumb: 'AI Chatbot' }

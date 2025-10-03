@@ -1,6 +1,6 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { GoogleGenAI, Chat, Type } from '@google/genai';
+import { GoogleGenAI, Chat, Type, GenerateContentResponse } from '@google/genai';
 import { lastValueFrom } from 'rxjs';
 
 // --- INTERFACES ---
@@ -79,11 +79,12 @@ export interface ComparativeAnalysisReport {
 })
 export class GeminiService {
   private http = inject(HttpClient);
-  private ai: GoogleGenAI;
+  ai: GoogleGenAI;
   private chat!: Chat;
 
   // Signal for chat history
   chatHistory = signal<ChatMessage[]>([]);
+  private systemInstruction = 'You are an expert SEO analyst and consultant. Your name is "SEO Audit Pro Bot". Provide helpful, accurate, and concise answers to SEO-related questions. When giving advice, be clear and provide actionable steps. Format your answers with rich markdown for readability, including lists, bold text, italics, code blocks, and tables where appropriate. You can analyze user-provided data like meta tags, JSON-LD snippets, or lists of keywords and provide specific, actionable feedback. You can also answer general questions about page speed optimization, content strategy, and link building based on SEO best practices.';
 
   constructor() {
     // The API key is expected to be available in the execution environment.
@@ -100,12 +101,30 @@ export class GeminiService {
     this.chat = this.ai.chats.create({
       model: 'gemini-2.5-flash',
       config: {
-        systemInstruction: 'You are an expert SEO analyst and consultant. Your name is "SEO Audit Pro Bot". Provide helpful, accurate, and concise answers to SEO-related questions. When giving advice, be clear and provide actionable steps. Format your answers with rich markdown for readability, including lists, bold text, italics, code blocks, and tables where appropriate. You can analyze user-provided data like meta tags, JSON-LD snippets, or lists of keywords and provide specific, actionable feedback. You can also answer general questions about page speed optimization, content strategy, and link building based on SEO best practices.',
+        systemInstruction: this.systemInstruction,
       },
     });
     this.chatHistory.set([
       { role: 'model', content: 'Hello! I am the SEO Audit Pro Bot. How can I help you with your SEO questions today? Ask me to analyze your meta tags, check your JSON-LD, or give you page speed advice!' }
     ]);
+  }
+
+  // New method for creating isolated chat sessions for the enhanced AI Assistant
+  createNewChatSession(history?: ChatMessage[]): Chat {
+    const geminiHistory = history
+      ?.filter(m => m.role === 'user' || m.role === 'model') // Gemini only accepts user/model roles
+      .map(m => ({
+        role: m.role,
+        parts: [{ text: m.content }]
+      }));
+
+    return this.ai.chats.create({
+      model: 'gemini-2.5-flash',
+      config: {
+        systemInstruction: this.systemInstruction,
+      },
+      history: geminiHistory,
+    });
   }
 
   startNewChat(): void {
@@ -190,7 +209,7 @@ export class GeminiService {
     };
 
     try {
-      const response = await this.ai.models.generateContent({
+      const response: GenerateContentResponse = await this.ai.models.generateContent({
         model: 'gemini-2.5-flash',
         contents: prompt,
         config: {
@@ -272,7 +291,7 @@ export class GeminiService {
     };
 
     try {
-      const response = await this.ai.models.generateContent({
+      const response: GenerateContentResponse = await this.ai.models.generateContent({
         model: 'gemini-2.5-flash',
         contents: prompt,
         config: {
@@ -341,7 +360,7 @@ export class GeminiService {
     };
     
     try {
-      const response = await this.ai.models.generateContent({
+      const response: GenerateContentResponse = await this.ai.models.generateContent({
         model: 'gemini-2.5-flash',
         contents: prompt,
         config: {

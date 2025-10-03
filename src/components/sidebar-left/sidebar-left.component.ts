@@ -38,8 +38,15 @@ export class SidebarLeftComponent {
         { label: 'Meta Tag Generator', path: '/seo-generator', icon: 'tag' },
       ]
     },
+    {
+      label: 'Resources',
+      icon: 'library_books',
+      children: [
+          { label: 'SEO Glossary', path: '/seo-glossary', icon: 'menu_book' },
+          { label: 'Podcasts', path: '/podcasts', icon: 'podcasts' }
+      ]
+    },
     { label: 'Use Cases', path: '/faqs', icon: 'cases' },
-    { label: 'Resources', path: '/seo-glossary', icon: 'library_books' },
     { label: 'Product', path: '#', icon: 'inventory_2' },
     { label: 'Company', path: '#', icon: 'business' },
     {

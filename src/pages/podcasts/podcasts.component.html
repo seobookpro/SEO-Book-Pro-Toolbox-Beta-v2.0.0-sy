@@ -1,0 +1,30 @@
+<div class="space-y-6">
+  <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md text-center">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">SEO Book Pro Podcasts</h1>
+    <p class="mt-2 text-lg text-gray-600 dark:text-gray-300">Listen to the latest insights and interviews from SEO experts, right here in the app.</p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+    @for (podcast of podcasts(); track podcast.url) {
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-shadow duration-300 hover:shadow-xl">
+        @if (podcast.loading) {
+          <div class="p-4 h-40">
+            <div class="animate-pulse flex flex-col justify-center h-full">
+              <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-4"></div>
+              <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+              <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded w-full mt-2"></div>
+            </div>
+          </div>
+        } @else if (podcast.error) {
+          <div class="p-4 flex flex-col items-center justify-center h-40 bg-red-50 dark:bg-red-900/50 text-center">
+            <span class="material-icons-outlined text-red-500 text-4xl">error_outline</span>
+            <p class="mt-2 text-red-700 dark:text-red-300 font-semibold">{{ podcast.error }}</p>
+            <p class="text-xs text-gray-500 break-all mt-1">Could not load from: {{ podcast.url }}</p>
+          </div>
+        } @else {
+          <div [innerHTML]="podcast.embedHtml"></div>
+        }
+      </div>
+    }
+  </div>
+</div>
